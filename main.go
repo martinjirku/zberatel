@@ -16,9 +16,9 @@ func main() {
 	}))
 
 	logger.Info("Starting application")
-	err := godotenv.Load()
+	err := godotenv.Load(".secrets")
 	if err != nil {
-		logger.Error("Loading .env file", "error", err)
+		logger.Error("Loading '.secrets' file", "error", err)
 		os.Exit(1)
 	}
 	r := router.New(logger)
