@@ -1,6 +1,6 @@
 .secrets.nhost
 .nhost
+.secrets
 
-
-
+functions/node_modules
 

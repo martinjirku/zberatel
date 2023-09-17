@@ -43,11 +43,11 @@ allowed = ['user', 'me']
 
 [auth.user.locale]
 default = 'en'
-allowed = ['en']
+allowed = ['en','sk']
 
 [auth.user.gravatar]
 enabled = true
-default = 'blank'
+default = 'robohash'
 rating = 'g'
 
 [auth.user.email]
