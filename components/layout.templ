@@ -1,0 +1,59 @@
+package components
+
+templ Layout(name string, b templ.Component) {
+    <html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{name}</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
+    </head>
+    <body>
+        @Header()
+        <main class="section">
+            <div class="container">
+                <div class="columns">
+                    <div class="column is-three-quarters">
+                        <h1 class="title">Main Content</h1>
+                        <p>Your main content goes here...</p>
+                    </div>
+                    <div class="column">
+                        <h1 class="title">Sidebar</h1>
+                        <p>Your sidebar content goes here...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        @Footer()
+    </body>
+    </html>
+}
+
+templ Header() {
+    <header class="section">
+        <div class="container">
+            <nav class="navbar" role="navigation" aria-label="main navigation">
+                <div class="navbar-brand">
+                    <a class="navbar-item" href="#">
+                        Zberatel
+                    </a>
+                </div>
+                <div class="navbar-menu">
+                    <div class="navbar-start">
+                        <a class="navbar-item" href="#">
+                            Domov
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+}
+
+templ Footer() {
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <p>Lorem ipsum...</p>
+        </div>
+    </footer>
+}

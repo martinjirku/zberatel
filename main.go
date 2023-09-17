@@ -21,8 +21,14 @@ func main() {
 		logger.Error("Loading '.secrets' file", "error", err)
 		os.Exit(1)
 	}
-	r := router.New(logger)
-	err = http.ListenAndServe(":3000", r)
+	options, err := router.NewOptions()
+	if err != nil {
+		logger.Error("read env variables", "error", err)
+		os.Exit(1)
+	}
+	logger.Debug("read env variables")
+	r := router.New(logger, options)
+	err = http.ListenAndServe("localhost:3000", r)
 	if err != nil {
 		logger.Error("Start server", "error", err)
 	}
