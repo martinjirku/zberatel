@@ -1,8 +1,10 @@
 package auth
 
-templ Page(name string) {
+templ Page(l templ.Component ) {
 	<header data-testid="headerTemplate">
-		<h1>{ name }</h1>
+		<h1>
+			{! l }
+		</h1>
 	</header>
 }
 

@@ -49,14 +49,20 @@ func New(l *slog.Logger, options Options) *chi.Mux {
 	sessions := session.NewSessionManager()
 
 	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
+	// By default set Content-Type to "text/html"
+	r.Use(func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "text/html")
+			h.ServeHTTP(w, r)
+		})
+	})
 	r.Use(requestLogger(l))
 	r.Use(middleware.Recoverer)
 
-	r.Route("/auth", handlers.NewAuth(l, sessions, authService).Route)
+	// css := home.ClassMaxLoginWidth()
+	// style := templ.NewCSSMiddleware(css)
 
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello world!"))
-	})
+	r.Route("/auth", handlers.NewAuth(l, sessions, authService).Route)
+	r.Get("/", handlers.NewHome(l).Index)
 	return r
 }

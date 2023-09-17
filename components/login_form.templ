@@ -1,0 +1,18 @@
+package components
+
+templ LoginForm(username string) {
+	<form action="/auth/login" class="is-3">
+		<h1 class="is-full title is-spaced">Prihlásenie</h1>
+		<div class="field"><label class="control" for="username">Username</label><input class="input" type="text" id="username" placeholder="Username"/></div>
+		<div class="field"><label class="control" for="password">Password</label><input class="input" type="password" id="password" placeholder="Password"/></div>
+		<div class="field is-grouped">
+			<div class="control">
+				<button type="submit" class="button is-link">Login</button>
+			</div>
+			<div class="control">
+				<a href="/auth/signup" class="button is-link is-light">Signup</a>
+			</div>
+		</div>
+	</form>
+}
+

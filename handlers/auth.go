@@ -7,6 +7,7 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-chi/chi/v5"
+	"jirku.sk/zbera/auth"
 	"jirku.sk/zbera/components"
 	hasuraauth "jirku.sk/zbera/lib/hasura-auth"
 )
@@ -41,7 +42,7 @@ func (a *Auth) Route(r chi.Router) {
 func (a *Auth) Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(http.StatusOK)
-	components.Layout("Login", nil).Render(r.Context(), w)
+	components.Layout("Login", auth.Page(components.LoginForm("login"))).Render(r.Context(), w)
 }
 
 func (a *Auth) LoginPost(w http.ResponseWriter, r *http.Request) {
