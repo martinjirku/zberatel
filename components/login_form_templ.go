@@ -53,16 +53,16 @@ func LoginForm(username string) templ.Component {
 		if err != nil {
 			return err
 		}
-		var_5 := `Login`
+		var_5 := `Prihlásenie`
 		_, err = templBuffer.WriteString(var_5)
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</button></div><div class=\"control\"><a href=\"/auth/signup\" class=\"button is-link is-light\">")
+		_, err = templBuffer.WriteString("</button></div><div class=\"control\"><a href=\"/auth/registration\" class=\"button is-link is-light\">")
 		if err != nil {
 			return err
 		}
-		var_6 := `Signup`
+		var_6 := `Registrácia`
 		_, err = templBuffer.WriteString(var_6)
 		if err != nil {
 			return err

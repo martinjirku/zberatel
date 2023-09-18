@@ -8,7 +8,6 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-chi/chi/v5"
 	"jirku.sk/zbera/auth"
-	"jirku.sk/zbera/components"
 	hasuraauth "jirku.sk/zbera/lib/hasura-auth"
 )
 
@@ -32,17 +31,16 @@ func NewAuth(l *slog.Logger, s *scs.SessionManager, a AuthService) *Auth {
 
 func (a *Auth) Route(r chi.Router) {
 	r.Get("/login", a.Login)
+	r.Get("/registration", a.Register)
 	r.Post("/login", a.LoginPost)
 	r.Post("/logout", a.Logout)
-	r.Post("/register", a.Register)
+	// r.Post("/register", a.Register)
 	r.Post("/forgot-password", a.ForgotPassword)
 	r.Post("/reset-password", a.ResetPassword)
 }
 
 func (a *Auth) Login(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	w.WriteHeader(http.StatusOK)
-	components.Layout("Login", auth.Page(components.LoginForm("login"))).Render(r.Context(), w)
+	auth.LoginPage().Render(r.Context(), w)
 }
 
 func (a *Auth) LoginPost(w http.ResponseWriter, r *http.Request) {
@@ -65,7 +63,7 @@ func (a *Auth) Logout(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Logout"))
 }
 func (a *Auth) Register(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Register"))
+	auth.RegisterPage().Render(r.Context(), w)
 }
 func (a *Auth) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("ForgotPassword"))

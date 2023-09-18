@@ -9,7 +9,7 @@ import "context"
 import "io"
 import "bytes"
 
-func Layout(name string, b templ.Component) templ.Component {
+func Layout(name string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
 		templBuffer, templIsBuffer := w.(*bytes.Buffer)
 		if !templIsBuffer {
@@ -31,7 +31,16 @@ func Layout(name string, b templ.Component) templ.Component {
 		if err != nil {
 			return err
 		}
-		_, err = templBuffer.WriteString("</title><link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css\"></head><body>")
+		_, err = templBuffer.WriteString("</title><link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css\"><script src=\"https://unpkg.com/htmx.org@1.9.5/dist/htmx.min.js\" integrity=\"sha384-xcuj3WpfgjlKF+FXhSQFQ0ZNr39ln+hwjN3npfM9VBnUskLolQAcN80McRIVOPuO\" crossorigin=\"anonymous\">")
+		if err != nil {
+			return err
+		}
+		var_3 := ``
+		_, err = templBuffer.WriteString(var_3)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</script></head><body>")
 		if err != nil {
 			return err
 		}
@@ -43,7 +52,7 @@ func Layout(name string, b templ.Component) templ.Component {
 		if err != nil {
 			return err
 		}
-		err = b.Render(ctx, templBuffer)
+		err = var_1.Render(ctx, templBuffer)
 		if err != nil {
 			return err
 		}
@@ -74,26 +83,26 @@ func Header() templ.Component {
 			defer templ.ReleaseBuffer(templBuffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		var_3 := templ.GetChildren(ctx)
-		if var_3 == nil {
-			var_3 = templ.NopComponent
+		var_4 := templ.GetChildren(ctx)
+		if var_4 == nil {
+			var_4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, err = templBuffer.WriteString("<header class=\"section\"><div class=\"container\"><nav class=\"navbar\" role=\"navigation\" aria-label=\"main navigation\"><div class=\"navbar-brand\"><a class=\"navbar-item\" href=\"\">")
+		_, err = templBuffer.WriteString("<header class=\"section\"><div class=\"container\"><nav class=\"navbar\" role=\"navigation\" aria-label=\"main navigation\"><div class=\"navbar-brand\"><a class=\"navbar-item\" href=\"/\">")
 		if err != nil {
 			return err
 		}
-		var_4 := `Zberatel`
-		_, err = templBuffer.WriteString(var_4)
-		if err != nil {
-			return err
-		}
-		_, err = templBuffer.WriteString("</a></div><div class=\"navbar-menu\"><div class=\"navbar-start\"><a class=\"navbar-item\" href=\"\">")
-		if err != nil {
-			return err
-		}
-		var_5 := `Domov`
+		var_5 := `Zberatel`
 		_, err = templBuffer.WriteString(var_5)
+		if err != nil {
+			return err
+		}
+		_, err = templBuffer.WriteString("</a></div><div class=\"navbar-menu\"><div class=\"navbar-start\"><a class=\"navbar-item\" href=\"/\">")
+		if err != nil {
+			return err
+		}
+		var_6 := `Domov`
+		_, err = templBuffer.WriteString(var_6)
 		if err != nil {
 			return err
 		}
@@ -116,17 +125,17 @@ func Footer() templ.Component {
 			defer templ.ReleaseBuffer(templBuffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		var_6 := templ.GetChildren(ctx)
-		if var_6 == nil {
-			var_6 = templ.NopComponent
+		var_7 := templ.GetChildren(ctx)
+		if var_7 == nil {
+			var_7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		_, err = templBuffer.WriteString("<footer class=\"footer\"><div class=\"content has-text-centered\"><p>")
 		if err != nil {
 			return err
 		}
-		var_7 := `Lorem ipsum...`
-		_, err = templBuffer.WriteString(var_7)
+		var_8 := `Lorem ipsum...`
+		_, err = templBuffer.WriteString(var_8)
 		if err != nil {
 			return err
 		}

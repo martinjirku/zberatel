@@ -1,10 +1,16 @@
 package auth
 
-templ Page(l templ.Component ) {
-	<header data-testid="headerTemplate">
-		<h1>
-			{! l }
-		</h1>
-	</header>
+import "jirku.sk/zbera/components"
+
+templ LoginPage() {
+	@components.Layout("") {
+		@components.LoginForm("")
+	}
+}
+
+templ RegisterPage() {
+	@components.Layout("") {
+		@components.RegistrationForm("")
+	}
 }
 
