@@ -1,0 +1,15 @@
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+dotenv: ['.env']
+
+tasks:
+  default:
+    cmds:
+      - echo "{{.GREETING}}"
+    silent: true
+  db:
+    cmds:
+      - ./scripts/db-start-docker.sh --name=$DB_DOCKER_NAME --db=$DB_NAME --user=$DB_USER --password=$DB_PWD --port=5432
