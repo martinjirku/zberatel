@@ -13,15 +13,21 @@ import "bytes"
 import "jirku.sk/zberatel/template/partials"
 
 type RegisterVM struct {
-	Title string
-	Form  partials.RegisterFormMV
+	Title   string
+	Message string
+	Form    partials.RegisterFormMV
 }
 
-func NewRegisterVM() RegisterVM {
+func NewRegisterVM(token string) RegisterVM {
 	return RegisterVM{
 		Title: "Register",
-		Form:  partials.NewRegisterFormMV(),
+		Form:  partials.NewRegisterFormMV(token),
 	}
+}
+
+func (vm RegisterVM) WithMessage(message string) RegisterVM {
+	vm.Message = message
+	return vm
 }
 
 func Register(vm RegisterVM) templ.Component {
@@ -37,7 +43,7 @@ func Register(vm RegisterVM) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h1>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h1 class=\"text-2xl text-center py-4\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

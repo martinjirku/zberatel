@@ -6,6 +6,7 @@ type TextInputMV struct {
 	Type        string
 	Placeholder string
 	Value       string
+	Errors      []string
 }
 
 func NewTextInputMV(label, name string) TextInputMV {
@@ -31,15 +32,27 @@ func (t TextInputMV) WithType(typ string) TextInputMV {
 	return t
 }
 
+func (t TextInputMV) WithErrors(errors ...string) TextInputMV {
+	t.Errors = errors
+	return t
+}
+
 templ TextInput(vm TextInputMV) {
 	<label class="block">
 		{ vm.Label }
 		<input
- 			class="w-full mt-1 border-2 border-gray-300 p-2 rounded-md"
+ 			class={
+				"w-full mt-1 border-2 p-2 rounded-md",
+				templ.KV("border-red-500", len(vm.Errors) > 0),
+				templ.KV("border-gray-300", len(vm.Errors) == 0),
+			}
  			type={ vm.Type }
  			name={ vm.Name }
  			placeholder={ vm.Placeholder }
  			value={ vm.Value }
 		/>
+		for _, err := range vm.Errors {
+			<p class="text-red-500 text-xs italic">{ err }</p>
+		}
 	</label>
 }

@@ -37,3 +37,15 @@ func AuthRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	layout.Page(layout.NewPageVM("Login")).Render(templ.WithChildren(r.Context(), content), w)
 }
 ```
+
+### Translations - i18n
+
+- i18n is handled by the library [go-playground/universal-translator](https://github.com/go-playground/universal-translator)
+- locales: [go-playground/locales](https://github.com/go-playground/locales)
+
+### Forms
+
+Form handling is very important.
+ - csfr protection - [justinas/nosurf](https://github.com/justinas/nosurf)
+ - to bind form values to structs - [go-playground/validator](https://github.com/go-playground/form)
+ - to validate structs - [go-playground/validator](https://github.com/go-playground/validator/v10)

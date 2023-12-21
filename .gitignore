@@ -1,3 +1,4 @@
 tmp/
 pgdata/
 .env
+__debug*

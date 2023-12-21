@@ -3,19 +3,25 @@ package page
 import "jirku.sk/zberatel/template/partials"
 
 type RegisterVM struct {
-	Title string
-	Form  partials.RegisterFormMV
+	Title   string
+	Message string
+	Form    partials.RegisterFormMV
 }
 
-func NewRegisterVM() RegisterVM {
+func NewRegisterVM(token string) RegisterVM {
 	return RegisterVM{
 		Title: "Register",
-		Form:  partials.NewRegisterFormMV(),
+		Form:  partials.NewRegisterFormMV(token),
 	}
 }
 
+func (vm RegisterVM) WithMessage(message string) RegisterVM {
+	vm.Message = message
+	return vm
+}
+
 templ Register(vm RegisterVM) {
-	<h1>{ vm.Title }</h1>
+	<h1 class="text-2xl text-center py-4">{ vm.Title }</h1>
 	<div class="w-full flex justify-center">
 		@partials.RegisterForm(vm.Form)
 	</div>

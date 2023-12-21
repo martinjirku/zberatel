@@ -11,19 +11,30 @@ import "io"
 import "bytes"
 
 import "jirku.sk/zberatel/template/components"
+import "github.com/justinas/nosurf"
 
 type RegisterFormMV struct {
-	Username string
-	Email    string
-	Password string
+	Username          string `validate:"required,min=3,max=20"`
+	Email             string `validate:"required,email"`
+	Password          string `validate:"required,min=8,max=64"`
+	ConfirmedPassword string `validate:"required,eqfield=Password"`
+	Token             string `form:"csrf_token" validate:"required"`
 
-	Errors map[string]string
+	Errors map[string][]string
 }
 
-func NewRegisterFormMV() RegisterFormMV {
+func NewRegisterFormMV(token string) RegisterFormMV {
 	return RegisterFormMV{
-		Errors: make(map[string]string),
+		Token:  token,
+		Errors: make(map[string][]string),
 	}
+}
+
+func (mv RegisterFormMV) GetError(field string) []string {
+	if v, ok := mv.Errors[field]; ok {
+		return v
+	}
+	return []string{}
 }
 
 func RegisterForm(mv RegisterFormMV) templ.Component {
@@ -44,35 +55,55 @@ func RegisterForm(mv RegisterFormMV) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = components.TextInput(components.
-			NewTextInputMV("Username", "username").
+			NewTextInputMV("Username", "Username").
 			WithPlaceholder("Fill in your username").
+			WithErrors(mv.GetError("Username")...).
 			WithValue(mv.Username)).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = components.TextInput(components.
-			NewTextInputMV("Email", "email").
+			NewTextInputMV("Email", "Email").
 			WithPlaceholder("Fill in your email").
+			WithErrors(mv.GetError("Email")...).
 			WithValue(mv.Email)).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = components.TextInput(components.
-			NewTextInputMV("Password", "password").
+			NewTextInputMV("Password", "Password").
 			WithPlaceholder("Specify the password").
+			WithErrors(mv.GetError("Password")...).
 			WithType("password").
 			WithValue(mv.Password)).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = components.TextInput(components.
-			NewTextInputMV("Confirm Password", "confirmed_password").
+			NewTextInputMV("Confirm Password", "ConfirmedPassword").
 			WithType("password").
+			WithErrors(mv.GetError("Password")...).
 			WithPlaceholder("Repeat the password")).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<input class=\"mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded\" type=\"submit\" value=\"Register\"></form>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<input type=\"hidden\" name=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(nosurf.FormFieldName))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(mv.Token))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <input class=\"mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded\" type=\"submit\" value=\"Register\"></form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
