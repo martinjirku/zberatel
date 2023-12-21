@@ -1,0 +1,68 @@
+package layout
+
+type scriptType string
+
+var (
+	ScriptTypeModule scriptType = "module"
+	ScriptTypeText   scriptType = "text/javascript"
+)
+
+type ScriptVM struct {
+	Type scriptType
+	Src  string
+}
+
+func NewScriptVM(typ scriptType, src string) ScriptVM {
+	return ScriptVM{
+		Type: typ,
+		Src:  src,
+	}
+}
+
+type PageVM struct {
+	Title   string
+	Styles  []string
+	Scripts []ScriptVM
+}
+
+func NewPageVM(title string) PageVM {
+	return PageVM{
+		Title:   title,
+		Styles:  []string{},
+		Scripts: []ScriptVM{},
+	}
+}
+
+templ Page(page PageVM) {
+	<html lang="sk" class="h-full overflow-x-clip">
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			for _, style := range page.Styles {
+				<link rel="stylesheet" href={ style }/>
+			}
+			// toto remove after tailwindcss is installed
+			<script src="https://cdn.tailwindcss.com"></script>
+			<title>{ page.Title }</title>
+		</head>
+		<body>
+			<nav
+ 				class="flex flex-row bg-slate-900 text-slate-100 text-center justify-center gap-4 py-2"
+			>
+				<div class="p-4">Domov</div>
+				<a href="/auth/login" class="p-4 hover:bg-slate-800 transition-colors duration-200 rounded-lg">
+					Login
+				</a>
+				<a href="/auth/register" class="p-4 hover:bg-slate-800 transition-colors duration-200 rounded-lg">
+					Register
+				</a>
+			</nav>
+			<div>
+				{ children... }
+			</div>
+			for _, script := range page.Scripts {
+				<script type={ string(script.Type) } src={ script.Src }></script>
+			}
+		</body>
+	</html>
+}

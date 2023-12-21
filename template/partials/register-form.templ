@@ -1,0 +1,40 @@
+package partials
+
+import "jirku.sk/zberatel/template/components"
+
+type RegisterFormMV struct {
+	Username string
+	Email    string
+	Password string
+
+	Errors map[string]string
+}
+
+func NewRegisterFormMV() RegisterFormMV {
+	return RegisterFormMV{
+		Errors: make(map[string]string),
+	}
+}
+
+templ RegisterForm(mv RegisterFormMV) {
+	<form class="flex flex-col space-y-4" action="/auth/register" method="post">
+		@components.TextInput(components.
+            NewTextInputMV("Username", "username").
+            WithPlaceholder("Fill in your username").
+            WithValue(mv.Username))
+		@components.TextInput(components.
+            NewTextInputMV("Email", "email").
+            WithPlaceholder("Fill in your email").
+            WithValue(mv.Email))
+		@components.TextInput(components.
+            NewTextInputMV("Password", "password").
+            WithPlaceholder("Specify the password").
+            WithType("password").
+            WithValue(mv.Password))
+		@components.TextInput(components.
+            NewTextInputMV("Confirm Password", "confirmed_password").
+            WithType("password").
+            WithPlaceholder("Repeat the password"))
+		<input class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit" value="Register"/>
+	</form>
+}

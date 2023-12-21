@@ -1,0 +1,45 @@
+package components
+
+type TextInputMV struct {
+	Label       string
+	Name        string
+	Type        string
+	Placeholder string
+	Value       string
+}
+
+func NewTextInputMV(label, name string) TextInputMV {
+	return TextInputMV{
+		Label: label,
+		Name:  name,
+		Type:  "text",
+	}
+}
+
+func (t TextInputMV) WithValue(value string) TextInputMV {
+	t.Value = value
+	return t
+}
+
+func (t TextInputMV) WithPlaceholder(placeholder string) TextInputMV {
+	t.Placeholder = placeholder
+	return t
+}
+
+func (t TextInputMV) WithType(typ string) TextInputMV {
+	t.Type = typ
+	return t
+}
+
+templ TextInput(vm TextInputMV) {
+	<label class="block">
+		{ vm.Label }
+		<input
+ 			class="w-full mt-1 border-2 border-gray-300 p-2 rounded-md"
+ 			type={ vm.Type }
+ 			name={ vm.Name }
+ 			placeholder={ vm.Placeholder }
+ 			value={ vm.Value }
+		/>
+	</label>
+}
