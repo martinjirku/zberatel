@@ -4,13 +4,13 @@ import "jirku.sk/zberatel/template/components"
 import "github.com/justinas/nosurf"
 
 type RegisterFormMV struct {
-	Username          string `validate:"required,min=3,max=20"`
-	Email             string `validate:"required,email"`
-	Password          string `validate:"required,min=8,max=64"`
-	ConfirmedPassword string `validate:"required,eqfield=Password"`
-	Token             string `form:"csrf_token" validate:"required"`
-
-	Errors map[string][]string
+	Username             string `validate:"required,min=3,max=20"`
+	Email                string `validate:"required,email"`
+	Password             string `validate:"required,min=8,max=64,eqfield=PasswordConfirmation"`
+	PasswordConfirmation string
+	Token                string `form:"csrf_token" validate:"required"`
+	Errors               map[string][]string
+	RecaptchaKey         string
 }
 
 func NewRegisterFormMV(token string) RegisterFormMV {
@@ -27,8 +27,12 @@ func (mv RegisterFormMV) GetError(field string) []string {
 	return []string{}
 }
 
+func (mv RegisterFormMV) hasRecaptcha() bool {
+	return mv.RecaptchaKey != ""
+}
+
 templ RegisterForm(mv RegisterFormMV) {
-	<form class="flex flex-col space-y-4" action="/auth/register" method="post">
+	<form id="register-form" class="flex flex-col space-y-4" action="/auth/register" method="post">
 		@components.TextInput(components.
             NewTextInputMV("Username", "Username").
             WithPlaceholder("Fill in your username").
@@ -46,11 +50,28 @@ templ RegisterForm(mv RegisterFormMV) {
             WithType("password").
             WithValue(mv.Password))
 		@components.TextInput(components.
-            NewTextInputMV("Confirm Password", "ConfirmedPassword").
+            NewTextInputMV("Password Confirmation", "PasswordConfirmation").
             WithType("password").
-			WithErrors(mv.GetError("Password")...).
+			WithErrors(mv.GetError("PasswordConfirmation")...).
             WithPlaceholder("Repeat the password"))
 		<input type="hidden" name={ nosurf.FormFieldName } value={ mv.Token }/>
-		<input class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit" value="Register"/>
+		<input
+ 			class={ "mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded",
+			templ.KV("g-recaptcha", mv.hasRecaptcha()) }
+ 			if mv.hasRecaptcha() {
+				data-sitekey={ mv.RecaptchaKey }
+				data-callback="onSubmit"
+				data-action="submit"
+			}
+ 			type="submit"
+ 			value="Register"
+		/>
 	</form>
+	<script src="https://www.google.com/recaptcha/api.js"></script>
+	<script>
+		function onSubmit(token) {
+			console.log("token", token);
+			document.getElementById("register-form").submit();
+		}
+ 	</script>
 }

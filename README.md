@@ -23,6 +23,8 @@
 
 Architecutre of the rendering is mix of templ templates. Each templ should have its view-model struct. E.g. Login will have LoginVM. This is naming convetion, but it increase simplicity. The downside is, that each templ component needs to define its own view-model struct.
 
+## Web layer
+
 The templates folder contains 4 packages:
   - _components_ - this is place to store atomic components (such as buttons, inputs,...)
   - _layout_ - place for specifying different layouts. The basic and required layout is the page layout. It is usually the root layout.
@@ -49,3 +51,8 @@ Form handling is very important.
  - csfr protection - [justinas/nosurf](https://github.com/justinas/nosurf)
  - to bind form values to structs - [go-playground/validator](https://github.com/go-playground/form)
  - to validate structs - [go-playground/validator](https://github.com/go-playground/validator/v10)
+
+ ### env and flags
+
+ - env file is read by the library [joho/godotenv](https://github.com/joho/godotenv)
+ - flags are read by the standard library

@@ -18,16 +18,11 @@ type RegisterVM struct {
 	Form    partials.RegisterFormMV
 }
 
-func NewRegisterVM(token string) RegisterVM {
+func NewRegisterVM() RegisterVM {
 	return RegisterVM{
 		Title: "Register",
-		Form:  partials.NewRegisterFormMV(token),
+		Form:  partials.RegisterFormMV{},
 	}
-}
-
-func (vm RegisterVM) WithMessage(message string) RegisterVM {
-	vm.Message = message
-	return vm
 }
 
 func Register(vm RegisterVM) templ.Component {

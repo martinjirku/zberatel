@@ -14,13 +14,13 @@ import "jirku.sk/zberatel/template/components"
 import "github.com/justinas/nosurf"
 
 type RegisterFormMV struct {
-	Username          string `validate:"required,min=3,max=20"`
-	Email             string `validate:"required,email"`
-	Password          string `validate:"required,min=8,max=64"`
-	ConfirmedPassword string `validate:"required,eqfield=Password"`
-	Token             string `form:"csrf_token" validate:"required"`
-
-	Errors map[string][]string
+	Username             string `validate:"required,min=3,max=20"`
+	Email                string `validate:"required,email"`
+	Password             string `validate:"required,min=8,max=64,eqfield=PasswordConfirmation"`
+	PasswordConfirmation string
+	Token                string `form:"csrf_token" validate:"required"`
+	Errors               map[string][]string
+	RecaptchaKey         string
 }
 
 func NewRegisterFormMV(token string) RegisterFormMV {
@@ -37,6 +37,10 @@ func (mv RegisterFormMV) GetError(field string) []string {
 	return []string{}
 }
 
+func (mv RegisterFormMV) hasRecaptcha() bool {
+	return mv.RecaptchaKey != ""
+}
+
 func RegisterForm(mv RegisterFormMV) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
@@ -50,7 +54,7 @@ func RegisterForm(mv RegisterFormMV) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form class=\"flex flex-col space-y-4\" action=\"/auth/register\" method=\"post\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form id=\"register-form\" class=\"flex flex-col space-y-4\" action=\"/auth/register\" method=\"post\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -80,9 +84,9 @@ func RegisterForm(mv RegisterFormMV) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = components.TextInput(components.
-			NewTextInputMV("Confirm Password", "ConfirmedPassword").
+			NewTextInputMV("Password Confirmation", "PasswordConfirmation").
 			WithType("password").
-			WithErrors(mv.GetError("Password")...).
+			WithErrors(mv.GetError("PasswordConfirmation")...).
 			WithPlaceholder("Repeat the password")).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -103,7 +107,66 @@ func RegisterForm(mv RegisterFormMV) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> <input class=\"mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded\" type=\"submit\" value=\"Register\"></form>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"> ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var2 = []any{"mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded",
+			templ.KV("g-recaptcha", mv.hasRecaptcha())}
+		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var2...)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<input class=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ.CSSClasses(templ_7745c5c3_Var2).String()))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if mv.hasRecaptcha() {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" data-sitekey=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(mv.RecaptchaKey))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" data-callback=\"onSubmit\" data-action=\"submit\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" type=\"submit\" value=\"Register\"></form><script src=\"https://www.google.com/recaptcha/api.js\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Var3 := ``
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</script><script>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Var4 := `
+		function onSubmit(token) {
+			console.log("token", token);
+			document.getElementById("register-form").submit();
+		}
+ 	`
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
