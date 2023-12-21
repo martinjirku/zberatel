@@ -21,6 +21,10 @@ import (
 	"jirku.sk/zberatel/template/partials"
 )
 
+type userService interface {
+	RegisterUser(ctx context.Context, username, email, password string) error
+}
+
 type Auth struct {
 	log             *slog.Logger
 	decoder         *form.Decoder
@@ -28,9 +32,10 @@ type Auth struct {
 	ut              *ut.UniversalTranslator
 	recaptchaKey    string
 	recaptchaSecret string
+	userService     userService
 }
 
-func NewAuth(log *slog.Logger, recaptchaKey, recaptchaSecret string) *Auth {
+func NewAuth(log *slog.Logger, recaptchaKey, recaptchaSecret string, userSrvc userService) *Auth {
 	uni := ut.New(en.New())
 	trans, _ := uni.GetTranslator("en")
 	validator := validator.New(validator.WithRequiredStructEnabled())
@@ -43,12 +48,8 @@ func NewAuth(log *slog.Logger, recaptchaKey, recaptchaSecret string) *Auth {
 		log:             log,
 		recaptchaKey:    recaptchaKey,
 		recaptchaSecret: recaptchaSecret,
+		userService:     userSrvc,
 	}
-}
-
-func getLogger(ctx context.Context, logger *slog.Logger) *slog.Logger {
-	requestID := middleware.RequestIDFromContext(ctx)
-	return logger.With(slog.String("request-id", requestID))
 }
 
 func (h *Auth) Login(w http.ResponseWriter, r *http.Request) {
@@ -57,7 +58,7 @@ func (h *Auth) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Auth) Register(w http.ResponseWriter, r *http.Request) {
-	logger := getLogger(r.Context(), h.log)
+	logger := middleware.GetLogger(r.Context(), h.log)
 	pageVM := page.NewRegisterVM()
 	statusCode := http.StatusOK
 	if r.Method == http.MethodPost {
@@ -68,6 +69,16 @@ func (h *Auth) Register(w http.ResponseWriter, r *http.Request) {
 		} else if pageVM.Form, err = h.decodeRegister(r); err != nil {
 			pageVM.Message = "Invalid form data"
 			logger.Error("decoding register form data", slog.Any("error", err))
+		}
+		if pageVM.Message == "" {
+			err := h.userService.RegisterUser(r.Context(), pageVM.Form.Username, pageVM.Form.Email, pageVM.Form.Password)
+			if err != nil {
+				pageVM.Message = "Error registering user. Try again later."
+			} else {
+				// Redirect to success page
+				http.Redirect(w, r, "/auth/registration-success", http.StatusFound)
+				return
+			}
 		}
 	} else {
 		pageVM.Form = partials.NewRegisterFormMV(nosurf.Token(r))

@@ -38,3 +38,9 @@ func RequestIDFromContext(ctx context.Context) string {
 	}
 	return ""
 }
+
+// GetLogger returns a logger with the request ID from the given context if one is present.
+func GetLogger(ctx context.Context, logger *slog.Logger) *slog.Logger {
+	requestID := RequestIDFromContext(ctx)
+	return logger.With(slog.String("request-id", requestID))
+}

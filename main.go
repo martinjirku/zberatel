@@ -12,6 +12,7 @@ import (
 	"github.com/justinas/nosurf"
 	"jirku.sk/zberatel/handler"
 	"jirku.sk/zberatel/pkg/middleware"
+	"jirku.sk/zberatel/service"
 )
 
 type configuration struct {
@@ -84,10 +85,13 @@ func main() {
 
 	// Endpoint handlers
 	router.HandleFunc("/", handler.HomeHandler).Methods("GET")
+	userSrv := service.NewUserService(serviceLog(log, "userService"))
 	auth := handler.NewAuth(
 		handlerLog(log, "auth"),
 		os.Getenv(GOOGLE_CAPTCHA_SITE),
-		os.Getenv(GOOGLE_CAPTCHA_SECRET))
+		os.Getenv(GOOGLE_CAPTCHA_SECRET),
+		userSrv,
+	)
 	router.HandleFunc("/auth/login", auth.Login).Methods("GET")
 	router.HandleFunc("/auth/register", auth.Register).Methods("GET", "POST")
 
@@ -113,6 +117,6 @@ func middlwareLog(log *slog.Logger, name string) *slog.Logger {
 	return log.With(slog.String("type", "middleware"), slog.String("name", name))
 }
 
-// func serviceLog(log *slog.Logger, name string) *slog.Logger {
-// 	return log.With(slog.String("type", "service"), slog.String("name", name))
-// }
+func serviceLog(log *slog.Logger, name string) *slog.Logger {
+	return log.With(slog.String("type", "service"), slog.String("name", name))
+}
