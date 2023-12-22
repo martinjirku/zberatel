@@ -13,3 +13,6 @@ tasks:
   db:
     cmds:
       - ./scripts/db-start-docker.sh --name=$DB_DOCKER_NAME --db=$DB_NAME --user=$DB_USER --password=$DB_PWD --port=5432
+  dbup:
+    cmds:
+      - dbmate --url "postgres://$DB_USER:$DB_PWD@$DB_HOST:$DB_PORT/$DB_NAME?sslmode=disable" up

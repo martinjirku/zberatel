@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"flag"
 	"fmt"
 	"log/slog"
@@ -21,6 +22,8 @@ import (
 	"jirku.sk/zberatel/handler"
 	"jirku.sk/zberatel/pkg/middleware"
 	"jirku.sk/zberatel/service"
+
+	_ "github.com/lib/pq"
 )
 
 type configuration struct {
@@ -50,6 +53,11 @@ func (c *configuration) Level() slog.Level {
 const (
 	GOOGLE_CAPTCHA_SITE   = "GOOGLE_CAPTCHA_SITE"
 	GOOGLE_CAPTCHA_SECRET = "GOOGLE_CAPTCHA_SECRET"
+	DB_ADDR               = "DB_ADDR"
+	DB_PORT               = "DB_PORT"
+	DB_NAME               = "DB_NAME"
+	DB_USER               = "DB_USER"
+	DB_PWD                = "DB_PWD"
 )
 
 func main() {
@@ -137,11 +145,24 @@ func setupRouter(router *mux.Router, log *slog.Logger, userSrv *service.UserServ
 }
 
 func prepareServices(log *slog.Logger) (*service.UserService, *ut.UniversalTranslator) {
+	// i18n
 	unSrv := ut.New(en.New())
 	trans, _ := unSrv.GetTranslator("en")
 	validator := validator.New(validator.WithRequiredStructEnabled())
 	validator_en.RegisterDefaultTranslations(validator, trans)
-	userSrv := service.NewUserService(serviceLog(log, "userService"), validator)
+
+	// Database
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv(DB_ADDR), os.Getenv(DB_PORT), os.Getenv(DB_USER), os.Getenv(DB_PWD), os.Getenv(DB_NAME))
+
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Error("error connecting to database", slog.Any("error", err))
+		panic(err)
+	}
+
+	// Services
+	userSrv := service.NewUserService(serviceLog(log, "userService"), db, validator)
 	return userSrv, unSrv
 }
 

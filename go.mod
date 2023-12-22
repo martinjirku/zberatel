@@ -15,6 +15,7 @@ require (
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/justinas/nosurf v1.1.1 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
+	github.com/lib/pq v1.10.9 // indirect
 	github.com/segmentio/ksuid v1.0.4 // indirect
 	golang.org/x/crypto v0.16.0 // indirect
 	golang.org/x/net v0.19.0 // indirect

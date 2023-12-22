@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"log/slog"
 
 	"github.com/go-playground/validator/v10"
@@ -11,12 +12,14 @@ import (
 
 type UserService struct {
 	log      *slog.Logger
+	db       *sql.DB
 	validate *validator.Validate
 }
 
-func NewUserService(log *slog.Logger, validator *validator.Validate) *UserService {
+func NewUserService(log *slog.Logger, db *sql.DB, validator *validator.Validate) *UserService {
 	return &UserService{
 		log:      log,
+		db:       db,
 		validate: validator,
 	}
 }

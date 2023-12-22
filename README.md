@@ -56,3 +56,9 @@ Form handling is very important.
 
  - env file is read by the library [joho/godotenv](https://github.com/joho/godotenv)
  - flags are read by the standard library
+
+ ### db
+
+ For db we are using the postgres.
+ - postgre driver [lib/pq](github.com/lib/pq)
+ - schema migration is done by dbmate (install it by brew). To run migration
