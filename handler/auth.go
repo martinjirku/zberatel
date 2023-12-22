@@ -82,12 +82,13 @@ func (h *Auth) RegisterAction(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/auth/registration-success", http.StatusFound)
 			return
 		}
-		if validationErrors := err.(validator.ValidationErrors); len(validationErrors) > 0 {
+		if validationErrors, ok := err.(validator.ValidationErrors); ok && len(validationErrors) > 0 {
 			translator, _ := h.ut.GetTranslator("en")
 			for _, e := range validationErrors {
 				pageVM.Form.SetError(e.Field(), e.Translate(translator))
 			}
 		} else {
+			logger.Error("registering user", slog.Any("error", err))
 			pageVM.Message = "Error registering user. Try again later."
 		}
 	}

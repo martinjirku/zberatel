@@ -41,7 +41,6 @@ CREATE TABLE public.migrations (
 --
 
 CREATE TABLE public.user_tokens (
-    id bytea NOT NULL,
     user_id bytea NOT NULL,
     token bytea NOT NULL
 );
@@ -53,9 +52,9 @@ CREATE TABLE public.user_tokens (
 
 CREATE TABLE public.users (
     id bytea NOT NULL,
-    username character varying(50) NOT NULL,
-    password character varying(50) NOT NULL,
-    email character varying(50) NOT NULL,
+    username character varying(72) NOT NULL,
+    password character varying(72) NOT NULL,
+    email character varying(72) NOT NULL,
     email_verified_at timestamp without time zone,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
@@ -68,14 +67,6 @@ CREATE TABLE public.users (
 
 ALTER TABLE ONLY public.migrations
     ADD CONSTRAINT migrations_pkey PRIMARY KEY (version);
-
-
---
--- Name: user_tokens user_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.user_tokens
-    ADD CONSTRAINT user_tokens_pkey PRIMARY KEY (id);
 
 
 --

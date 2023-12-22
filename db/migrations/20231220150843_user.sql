@@ -2,9 +2,9 @@
 CREATE TABLE users (
     -- reconsider the BYTEA type for ksuid
     id BYTEA PRIMARY KEY,
-    username VARCHAR(50) NOT NULL,
-    password VARCHAR(50) NOT NULL,
-    email VARCHAR(50) NOT NULL,
+    username VARCHAR(72) NOT NULL,
+    password VARCHAR(72) NOT NULL,
+    email VARCHAR(72) NOT NULL,
     email_verified_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -13,7 +13,6 @@ CREATE TABLE users (
 -- handling the email verification token
 CREATE TABLE user_tokens (
     -- reconsider the BYTEA vs VARCHAR(27) type for ksuid
-    id BYTEA PRIMARY KEY,
     user_id BYTEA NOT NULL,
     token BYTEA NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id)

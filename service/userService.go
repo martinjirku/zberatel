@@ -3,23 +3,29 @@ package service
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log/slog"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/segmentio/ksuid"
+	"jirku.sk/zberatel/db"
 	"jirku.sk/zberatel/model"
 	"jirku.sk/zberatel/pkg/middleware"
+	"jirku.sk/zberatel/pkg/password"
 )
 
 type UserService struct {
 	log      *slog.Logger
 	db       *sql.DB
+	queries  *db.Queries
 	validate *validator.Validate
 }
 
-func NewUserService(log *slog.Logger, db *sql.DB, validator *validator.Validate) *UserService {
+func NewUserService(log *slog.Logger, sql *sql.DB, validator *validator.Validate) *UserService {
 	return &UserService{
 		log:      log,
-		db:       db,
+		db:       sql,
+		queries:  db.New(sql),
 		validate: validator,
 	}
 }
@@ -32,5 +38,33 @@ func (s *UserService) RegisterUser(ctx context.Context, input model.UserRegistra
 		return err
 	}
 	logger.Info("RegisterUser", slog.String("username", input.Username), slog.String("email", input.Username))
+	ID, err := ksuid.NewRandom()
+	if err != nil {
+		logger.Error("Generating ID", slog.Any("error", err))
+		return fmt.Errorf("error generating ID: %w", err)
+	}
+	emailToken, err := ksuid.NewRandom()
+	if err != nil {
+		logger.Error("Generating email token", slog.Any("error", err))
+		return fmt.Errorf("error generating email token: %w", err)
+	}
+	entity := db.RegisterUserParams{
+		ID:       ID.Bytes(),
+		Username: input.Username,
+		Email:    input.Email,
+		Token:    emailToken.Bytes(),
+	}
+	entity.Password, err = password.HashPassword(input.Password)
+	if err != nil {
+		logger.Error("Hashing password", slog.Any("error", err))
+		return fmt.Errorf("error hashing password: %w", err)
+	}
+	result, err := s.queries.RegisterUser(ctx, entity)
+	if err != nil {
+		logger.Error("Registering user", slog.Any("error", err))
+		return fmt.Errorf("error registering user: %w", err)
+	}
+	// TODO: finish this later -> email confirmation
+	logger.Info("Sending email with", slog.Any("result", result))
 	return nil
 }
