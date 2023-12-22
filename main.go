@@ -1,11 +1,15 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
@@ -49,21 +53,49 @@ const (
 )
 
 func main() {
+	// Channel to signal the server to start
+	startChan := make(chan struct{})
+	// Handle OS signals.
+	stopChan := make(chan os.Signal, 1)
+	signal.Notify(stopChan, syscall.SIGINT, syscall.SIGTERM)
 
 	config, log := configure()
-	userSrv, unSrv := prepareServices(log)
+	server := &http.Server{
+		Addr: fmt.Sprintf("%s:%d", config.host, config.port),
+	}
 
-	router := mux.NewRouter()
-	setupMiddleware(router, log)
-	setupRouter(router, log, userSrv, unSrv)
+	go func() {
+		userSrv, unSrv := prepareServices(log)
+		router := mux.NewRouter()
+		setupMiddleware(router, log)
+		setupRouter(router, log, userSrv, unSrv)
+		server.Handler = router
+		<-startChan
+		log.Info(fmt.Sprintf("starting server at %s", server.Addr))
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Error("error starting server", slog.Any("error", err))
+			panic(err)
+		}
+	}()
 
-	// Start server
-	addr := fmt.Sprintf("%s:%d", config.host, config.port)
-	log.Info(fmt.Sprintf("starting server at %s", addr))
-	err := http.ListenAndServe(addr, router)
-	if err != nil {
-		log.Error("error starting server", slog.Any("error", err))
-		panic(err)
+	select {
+	case <-time.After(10 * time.Millisecond): // Adjust timeout as needed
+		close(startChan) // Signal to start server
+	case <-stopChan:
+		log.Info("Startup interrupted, server not started")
+		return
+	}
+
+	<-stopChan
+	log.Info("Shutting down server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	if err := server.Shutdown(ctx); err != nil {
+		log.Info("Shutting down error", slog.Any("error", err))
+	} else {
+		log.Info("Server gracefully stopped")
 	}
 }
 
