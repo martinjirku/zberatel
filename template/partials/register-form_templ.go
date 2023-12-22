@@ -23,22 +23,34 @@ type RegisterFormMV struct {
 	RecaptchaKey         string
 }
 
-func NewRegisterFormMV(token string) RegisterFormMV {
+func NewRegisterFormMV(csfrToken, recaptcha string) RegisterFormMV {
 	return RegisterFormMV{
-		Token:  token,
-		Errors: make(map[string][]string),
+		Token:        csfrToken,
+		RecaptchaKey: recaptcha,
+		Errors:       make(map[string][]string),
 	}
 }
 
-func (mv RegisterFormMV) GetError(field string) []string {
+func (mv *RegisterFormMV) GetError(field string) []string {
 	if v, ok := mv.Errors[field]; ok {
 		return v
 	}
 	return []string{}
 }
 
-func (mv RegisterFormMV) hasRecaptcha() bool {
+func (mv *RegisterFormMV) IsValid() bool {
+	return len(mv.Errors) == 0
+}
+
+func (mv *RegisterFormMV) hasRecaptcha() bool {
 	return mv.RecaptchaKey != ""
+}
+
+func (mv *RegisterFormMV) SetError(field string, err string) {
+	if _, ok := mv.Errors[field]; !ok {
+		mv.Errors[field] = []string{}
+	}
+	mv.Errors[field] = append(mv.Errors[field], err)
 }
 
 func RegisterForm(mv RegisterFormMV) templ.Component {

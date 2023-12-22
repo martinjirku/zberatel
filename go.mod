@@ -8,6 +8,7 @@ require (
 	github.com/go-playground/form v3.1.4+incompatible // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
+	github.com/go-playground/validator v9.31.0+incompatible // indirect
 	github.com/go-playground/validator/v10 v10.16.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect

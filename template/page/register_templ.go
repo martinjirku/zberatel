@@ -18,10 +18,10 @@ type RegisterVM struct {
 	Form    partials.RegisterFormMV
 }
 
-func NewRegisterVM() RegisterVM {
+func NewRegisterVM(csfrToken, recaptcha string) RegisterVM {
 	return RegisterVM{
 		Title: "Register",
-		Form:  partials.RegisterFormMV{},
+		Form:  partials.NewRegisterFormMV(csfrToken, recaptcha),
 	}
 }
 

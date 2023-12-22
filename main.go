@@ -7,6 +7,10 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/go-playground/locales/en"
+	ut "github.com/go-playground/universal-translator"
+	"github.com/go-playground/validator/v10"
+	validator_en "github.com/go-playground/validator/v10/translations/en"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/justinas/nosurf"
@@ -46,6 +50,70 @@ const (
 
 func main() {
 
+	config, log := configure()
+	userSrv, unSrv := prepareServices(log)
+
+	router := mux.NewRouter()
+	setupMiddleware(router, log)
+	setupRouter(router, log, userSrv, unSrv)
+
+	// Start server
+	addr := fmt.Sprintf("%s:%d", config.host, config.port)
+	log.Info(fmt.Sprintf("starting server at %s", addr))
+	err := http.ListenAndServe(addr, router)
+	if err != nil {
+		log.Error("error starting server", slog.Any("error", err))
+		panic(err)
+	}
+}
+
+func validatePort(port int) bool {
+	return port > 0 && port <= 65535
+}
+
+func handlerLog(log *slog.Logger, name string) *slog.Logger {
+	return log.With(slog.String("type", "handler"), slog.String("name", name))
+}
+
+func middlwareLog(log *slog.Logger, name string) *slog.Logger {
+	return log.With(slog.String("type", "middleware"), slog.String("name", name))
+}
+
+func serviceLog(log *slog.Logger, name string) *slog.Logger {
+	return log.With(slog.String("type", "service"), slog.String("name", name))
+}
+
+func setupMiddleware(router *mux.Router, log *slog.Logger) {
+	router.Use(middleware.Recover(middlwareLog(log, "recover")))
+	router.Use(nosurf.NewPure)
+	router.Use(middleware.RequestID(middlwareLog(log, "requestID")))
+	router.Use(middleware.Logger(middlwareLog(log, "logger")))
+}
+
+func setupRouter(router *mux.Router, log *slog.Logger, userSrv *service.UserService, unSrv *ut.UniversalTranslator) {
+	router.HandleFunc("/", handler.HomeHandler).Methods("GET")
+	auth := handler.NewAuth(
+		handlerLog(log, "auth"),
+		os.Getenv(GOOGLE_CAPTCHA_SITE),
+		os.Getenv(GOOGLE_CAPTCHA_SECRET),
+		userSrv,
+		unSrv,
+	)
+	router.HandleFunc("/auth/login", auth.Login).Methods("GET")
+	router.HandleFunc("/auth/register", auth.Register).Methods("GET")
+	router.HandleFunc("/auth/register", auth.RegisterAction).Methods("POST")
+}
+
+func prepareServices(log *slog.Logger) (*service.UserService, *ut.UniversalTranslator) {
+	unSrv := ut.New(en.New())
+	trans, _ := unSrv.GetTranslator("en")
+	validator := validator.New(validator.WithRequiredStructEnabled())
+	validator_en.RegisterDefaultTranslations(validator, trans)
+	userSrv := service.NewUserService(serviceLog(log, "userService"), validator)
+	return userSrv, unSrv
+}
+
+func configure() (configuration, *slog.Logger) {
 	config := configuration{}
 
 	flag.StringVar(&config.publicPath, "public", "", "Usage description of the flag")
@@ -75,48 +143,5 @@ func main() {
 	if err != nil {
 		log.Error("Error loading .env file", slog.Any("error", err))
 	}
-
-	router := mux.NewRouter()
-	// Logger middleware
-	router.Use(middleware.Recover(middlwareLog(log, "recover")))
-	router.Use(nosurf.NewPure)
-	router.Use(middleware.RequestID(middlwareLog(log, "requestID")))
-	router.Use(middleware.Logger(middlwareLog(log, "logger")))
-
-	// Endpoint handlers
-	router.HandleFunc("/", handler.HomeHandler).Methods("GET")
-	userSrv := service.NewUserService(serviceLog(log, "userService"))
-	auth := handler.NewAuth(
-		handlerLog(log, "auth"),
-		os.Getenv(GOOGLE_CAPTCHA_SITE),
-		os.Getenv(GOOGLE_CAPTCHA_SECRET),
-		userSrv,
-	)
-	router.HandleFunc("/auth/login", auth.Login).Methods("GET")
-	router.HandleFunc("/auth/register", auth.Register).Methods("GET", "POST")
-
-	// Start server
-	addr := fmt.Sprintf("%s:%d", config.host, config.port)
-	log.Info(fmt.Sprintf("starting server at %s", addr))
-	err = http.ListenAndServe(addr, router)
-	if err != nil {
-		log.Error("error starting server", slog.Any("error", err))
-		panic(err)
-	}
-}
-
-func validatePort(port int) bool {
-	return port > 0 && port <= 65535
-}
-
-func handlerLog(log *slog.Logger, name string) *slog.Logger {
-	return log.With(slog.String("type", "handler"), slog.String("name", name))
-}
-
-func middlwareLog(log *slog.Logger, name string) *slog.Logger {
-	return log.With(slog.String("type", "middleware"), slog.String("name", name))
-}
-
-func serviceLog(log *slog.Logger, name string) *slog.Logger {
-	return log.With(slog.String("type", "service"), slog.String("name", name))
+	return config, log
 }

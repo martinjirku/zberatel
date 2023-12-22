@@ -10,11 +10,10 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/go-playground/form"
-	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
-	validator_en "github.com/go-playground/validator/v10/translations/en"
 	"github.com/justinas/nosurf"
+	"jirku.sk/zberatel/model"
 	"jirku.sk/zberatel/pkg/middleware"
 	"jirku.sk/zberatel/template/layout"
 	"jirku.sk/zberatel/template/page"
@@ -22,29 +21,22 @@ import (
 )
 
 type userService interface {
-	RegisterUser(ctx context.Context, username, email, password string) error
+	RegisterUser(ctx context.Context, input model.UserRegistrationInput) error
 }
 
 type Auth struct {
 	log             *slog.Logger
 	decoder         *form.Decoder
-	validate        *validator.Validate
 	ut              *ut.UniversalTranslator
 	recaptchaKey    string
 	recaptchaSecret string
 	userService     userService
 }
 
-func NewAuth(log *slog.Logger, recaptchaKey, recaptchaSecret string, userSrvc userService) *Auth {
-	uni := ut.New(en.New())
-	trans, _ := uni.GetTranslator("en")
-	validator := validator.New(validator.WithRequiredStructEnabled())
-	validator_en.RegisterDefaultTranslations(validator, trans)
-
+func NewAuth(log *slog.Logger, recaptchaKey, recaptchaSecret string, userSrvc userService, ut *ut.UniversalTranslator) *Auth {
 	return &Auth{
 		decoder:         form.NewDecoder(),
-		validate:        validator,
-		ut:              uni,
+		ut:              ut,
 		log:             log,
 		recaptchaKey:    recaptchaKey,
 		recaptchaSecret: recaptchaSecret,
@@ -59,59 +51,69 @@ func (h *Auth) Login(w http.ResponseWriter, r *http.Request) {
 
 func (h *Auth) Register(w http.ResponseWriter, r *http.Request) {
 	logger := middleware.GetLogger(r.Context(), h.log)
-	pageVM := page.NewRegisterVM()
-	statusCode := http.StatusOK
-	if r.Method == http.MethodPost {
-		logger.Info("registering user")
-		if err := h.validateCaptcha(r); err != nil {
-			pageVM.Message = "Invalid captcha"
-			logger.Error("decoding register form data", slog.Any("error", err))
-		} else if pageVM.Form, err = h.decodeRegister(r); err != nil {
-			pageVM.Message = "Invalid form data"
-			logger.Error("decoding register form data", slog.Any("error", err))
-		}
-		if pageVM.Message == "" {
-			err := h.userService.RegisterUser(r.Context(), pageVM.Form.Username, pageVM.Form.Email, pageVM.Form.Password)
-			if err != nil {
-				pageVM.Message = "Error registering user. Try again later."
-			} else {
-				// Redirect to success page
-				http.Redirect(w, r, "/auth/registration-success", http.StatusFound)
-				return
-			}
-		}
-	} else {
-		pageVM.Form = partials.NewRegisterFormMV(nosurf.Token(r))
-	}
+	pageVM := page.NewRegisterVM(nosurf.Token(r), h.recaptchaKey)
 
-	pageVM.Form.RecaptchaKey = h.recaptchaKey
-
-	logger.Debug("sending response", slog.Int("code", statusCode), slog.Any("view-model", pageVM))
-	w.WriteHeader(statusCode)
+	logger.Debug("sending response", slog.Int("code", http.StatusOK), slog.Any("view-model", pageVM))
 	content := page.Register(pageVM)
 	layout.Page(layout.NewPageVM("Register")).Render(templ.WithChildren(r.Context(), content), w)
 }
 
-func (h *Auth) decodeRegister(r *http.Request) (partials.RegisterFormMV, error) {
-	result := partials.NewRegisterFormMV(nosurf.Token(r))
-	if err := r.ParseForm(); err != nil {
-		return result, fmt.Errorf("parsing form: %w", err)
-	} else if err := h.decoder.Decode(&result, r.PostForm); err != nil {
-		return result, fmt.Errorf("decoding formular: %w", err)
-	} else if err := h.validate.Struct(result); err != nil {
-		if validationErrors := err.(validator.ValidationErrors); validationErrors != nil {
-			for _, e := range validationErrors {
-				translator, _ := h.ut.GetTranslator("en")
-				if v, ok := result.Errors[e.Field()]; ok {
-					result.Errors[e.Field()] = append(v, e.Translate(translator))
-				} else {
-					result.Errors[e.Field()] = []string{e.Translate(translator)}
-				}
-			}
+func (h *Auth) RegisterAction(w http.ResponseWriter, r *http.Request) {
+	logger := middleware.GetLogger(r.Context(), h.log)
+	pageVM := page.NewRegisterVM(nosurf.Token(r), h.recaptchaKey)
+
+	if err := h.validateCaptcha(r); err != nil {
+		pageVM.Message = "Invalid captcha"
+		logger.Error("decoding register form data", slog.Any("error", err))
+	} else if err = h.decodeRegisterFormValues(r, &pageVM.Form); err != nil {
+		pageVM.Message = "Invalid form data"
+		logger.Error("decoding register form data", slog.Any("error", err))
+	} else if pageVM.Form.Password != pageVM.Form.PasswordConfirmation {
+		logger.Info("checking password confirmation")
+		pageVM.Form.Errors = map[string][]string{"PasswordConfirmation": {"Password confirmation does not match the password"}}
+	} else {
+		err := h.userService.RegisterUser(r.Context(), model.UserRegistrationInput{
+			Username: pageVM.Form.Username,
+			Email:    pageVM.Form.Email,
+			Password: pageVM.Form.Password,
+		})
+		if err == nil {
+			// Redirect to success page
+			http.Redirect(w, r, "/auth/registration-success", http.StatusFound)
+			return
 		}
-		return result, fmt.Errorf("validating formular: %w", err)
+		if validationErrors := err.(validator.ValidationErrors); len(validationErrors) > 0 {
+			translator, _ := h.ut.GetTranslator("en")
+			for _, e := range validationErrors {
+				pageVM.Form.SetError(e.Field(), e.Translate(translator))
+			}
+		} else {
+			pageVM.Message = "Error registering user. Try again later."
+		}
 	}
-	return result, nil
+	status := http.StatusOK
+	if pageVM.Message != "" || !pageVM.Form.IsValid() {
+		status = http.StatusBadRequest
+	}
+	logger.Debug("sending response", slog.Int("code", status), slog.Any("view-model", pageVM))
+	w.WriteHeader(status)
+
+	content := page.Register(pageVM)
+	layout.Page(layout.NewPageVM("Register")).Render(templ.WithChildren(r.Context(), content), w)
+}
+
+func (h *Auth) decodeRegisterFormValues(r *http.Request, form *partials.RegisterFormMV) error {
+	logger := middleware.GetLogger(r.Context(), h.log)
+
+	if err := r.ParseForm(); err != nil {
+		logger.Error("parsing form", slog.Any("error", err))
+		return fmt.Errorf("parsing form: %w", err)
+	}
+	if err := h.decoder.Decode(&form, r.PostForm); err != nil {
+		logger.Error("decode form", slog.Any("error", err))
+		return fmt.Errorf("decoding formular: %w", err)
+	}
+	return nil
 }
 
 type googleCaptchaResponse struct {
