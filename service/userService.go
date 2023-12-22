@@ -30,6 +30,26 @@ func NewUserService(log *slog.Logger, sql *sql.DB, validator *validator.Validate
 	}
 }
 
+func (s *UserService) LoginUser(ctx context.Context, input model.UserLoginInput) (model.UserLogin, error) {
+	// logger := middleware.GetLogger(ctx, s.log)
+	result := model.UserLogin{Username: input.Username}
+	resp, err := s.queries.GetUserLogin(ctx, input.Username)
+	if err != nil {
+		return result, err
+	}
+	// resp.Password
+	ok := password.CheckPasswordHash(input.Password, resp.Password)
+	if !ok {
+		return result, fmt.Errorf("invalid password")
+	}
+	result.Email = resp.Email
+	result.ID, err = ksuid.FromBytes(resp.ID)
+	if err != nil {
+		return result, fmt.Errorf("invalid ID")
+	}
+	return result, nil
+}
+
 func (s *UserService) RegisterUser(ctx context.Context, input model.UserRegistrationInput) error {
 	logger := middleware.GetLogger(ctx, s.log)
 	err := s.validate.Struct(input)

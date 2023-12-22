@@ -8,3 +8,6 @@ WITH new_user AS (
     INSERT INTO user_tokens (user_id, token) VALUES ((SELECT id FROM new_user), $5)
     RETURNING token
 ) SELECT id, token FROM new_user, new_token;
+
+-- name: GetUserLogin :one
+SELECT id, username, password, email FROM users WHERE username = $1;

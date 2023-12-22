@@ -9,6 +9,29 @@ import (
 	"context"
 )
 
+const getUserLogin = `-- name: GetUserLogin :one
+SELECT id, username, password, email FROM users WHERE username = $1
+`
+
+type GetUserLoginRow struct {
+	ID       []byte
+	Username string
+	Password string
+	Email    string
+}
+
+func (q *Queries) GetUserLogin(ctx context.Context, username string) (GetUserLoginRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserLogin, username)
+	var i GetUserLoginRow
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Password,
+		&i.Email,
+	)
+	return i, err
+}
+
 const registerUser = `-- name: RegisterUser :one
 WITH new_user AS (
     INSERT INTO users (id, username, password, email ) VALUES ($1, $2, $3, $4)

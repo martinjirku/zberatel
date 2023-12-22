@@ -13,8 +13,9 @@ import "bytes"
 import "jirku.sk/zberatel/template/partials"
 
 type LoginVM struct {
-	Title string
-	Form  partials.LoginFormVM
+	Title       string
+	Form        partials.LoginFormVM
+	GlobalError string
 }
 
 func NewLoginVM(csfrToken, recaptcha, username string) LoginVM {

@@ -16,6 +16,7 @@ import "github.com/justinas/nosurf"
 type LoginFormVM struct {
 	Username     string
 	RecaptchaKey string
+	Password     string
 	CsfrToken    string
 
 	Errors map[string][]string
@@ -56,7 +57,7 @@ func LoginForm(vm LoginFormVM) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form id=\"register-form\" class=\"flex flex-col space-y-4\" action=\"/auth/register\" method=\"post\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form id=\"login-form\" class=\"flex flex-col space-y-4\" action=\"/auth/login\" method=\"post\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -130,25 +131,29 @@ func LoginForm(vm LoginFormVM) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" type=\"submit\" value=\"Register\"><script src=\"https://www.google.com/recaptcha/api.js\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" type=\"submit\" value=\"Register\"></form><script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var3 := ``
+		templ_7745c5c3_Var3 := `
+		function onSubmit(token) {
+			document.getElementById("login-form").submit();
+		}
+	`
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</script><script>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</script><script src=\"https://www.google.com/recaptcha/api.js\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var4 := `onSubmit(token) => document.getElementById("register-form").submit()`
+		templ_7745c5c3_Var4 := ``
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</script></form>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

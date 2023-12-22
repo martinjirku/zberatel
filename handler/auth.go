@@ -22,6 +22,7 @@ import (
 
 type userService interface {
 	RegisterUser(ctx context.Context, input model.UserRegistrationInput) error
+	LoginUser(ctx context.Context, input model.UserLoginInput) (model.UserLogin, error)
 }
 
 type Auth struct {
@@ -46,6 +47,33 @@ func NewAuth(log *slog.Logger, recaptchaKey, recaptchaSecret string, userSrvc us
 
 func (h *Auth) Login(w http.ResponseWriter, r *http.Request) {
 	content := page.Login(page.NewLoginVM(nosurf.Token(r), h.recaptchaKey, ""))
+	layout.Page(layout.NewPageVM("Login")).Render(templ.WithChildren(r.Context(), content), w)
+}
+
+func (h *Auth) LoginAction(w http.ResponseWriter, r *http.Request) {
+	logger := middleware.GetLogger(r.Context(), h.log)
+	pageVM := page.NewLoginVM(nosurf.Token(r), h.recaptchaKey, "")
+
+	if err := h.validateCaptcha(r); err != nil {
+		pageVM.GlobalError = "Invalid captcha"
+		logger.Error("decoding register form data", slog.Any("error", err))
+	} else if err = h.decodeLoginFormValues(r, &pageVM.Form); err != nil {
+		pageVM.GlobalError = "Invalid form data"
+		logger.Error("decoding register form data", slog.Any("error", err))
+	} else {
+		_, err := h.userService.LoginUser(r.Context(), model.UserLoginInput{
+			Username: pageVM.Form.Username,
+			Password: pageVM.Form.Password,
+		})
+		if err == nil {
+			http.Redirect(w, r, "/", http.StatusFound)
+			return
+		}
+		pageVM.GlobalError = "Could not login"
+	}
+
+	w.WriteHeader(http.StatusBadRequest)
+	content := page.Login(pageVM)
 	layout.Page(layout.NewPageVM("Login")).Render(templ.WithChildren(r.Context(), content), w)
 }
 
@@ -112,6 +140,20 @@ func (h *Auth) RegistrationSuccess(w http.ResponseWriter, r *http.Request) {
 	logger.Debug("sending response", slog.Int("code", http.StatusOK), slog.Any("view-model", pageVM))
 	content := page.RegisterSuccess(pageVM)
 	layout.Page(layout.NewPageVM("Successfull Registration")).Render(templ.WithChildren(r.Context(), content), w)
+}
+
+func (h *Auth) decodeLoginFormValues(r *http.Request, form *partials.LoginFormVM) error {
+	logger := middleware.GetLogger(r.Context(), h.log)
+
+	if err := r.ParseForm(); err != nil {
+		logger.Error("parsing form", slog.Any("error", err))
+		return fmt.Errorf("parsing form: %w", err)
+	}
+	if err := h.decoder.Decode(&form, r.PostForm); err != nil {
+		logger.Error("decode form", slog.Any("error", err))
+		return fmt.Errorf("decoding formular: %w", err)
+	}
+	return nil
 }
 
 func (h *Auth) decodeRegisterFormValues(r *http.Request, form *partials.RegisterFormMV) error {
