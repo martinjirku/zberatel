@@ -1,10 +1,65 @@
 package partials
 
-templ LoginForm() {
-	<form class="flex flex-col" action="/auth/login" method="POST">
-		<label>Username<input type="text" name="username" placeholder="Username"/></label>
-		<label>Password<input type="password" name="password" placeholder="Password"/></label>
-		<button type="submit" value="Login">Login</button>
-		<a href="/auth/register">Register</a>
+import "jirku.sk/zberatel/template/components"
+import "github.com/justinas/nosurf"
+
+type LoginFormVM struct {
+	Username     string
+	RecaptchaKey string
+	CsfrToken    string
+
+	Errors map[string][]string
+}
+
+func (mv *LoginFormVM) GetError(field string) []string {
+	if v, ok := mv.Errors[field]; ok {
+		return v
+	}
+	return []string{}
+}
+
+func (mv *LoginFormVM) IsValid() bool {
+	return len(mv.Errors) == 0
+}
+
+func (mv *LoginFormVM) hasRecaptcha() bool {
+	return mv.RecaptchaKey != ""
+}
+
+func (mv *LoginFormVM) SetError(field string, err string) {
+	if _, ok := mv.Errors[field]; !ok {
+		mv.Errors[field] = []string{}
+	}
+	mv.Errors[field] = append(mv.Errors[field], err)
+}
+
+templ LoginForm(vm LoginFormVM) {
+	<form id="register-form" class="flex flex-col space-y-4" action="/auth/register" method="post">
+		@components.TextInput(components.
+            NewTextInputMV("Username", "Username").
+            WithPlaceholder("Fill in your username").
+			WithErrors(vm.GetError("Username")...).
+            WithValue(vm.Username))
+		@components.TextInput(components.
+            NewTextInputMV("Password", "Password").
+            WithPlaceholder("Specify the password").
+			WithErrors(vm.GetError("Password")...).
+            WithType("password"))
+		<input type="hidden" name={ nosurf.FormFieldName } value={ vm.CsfrToken }/>
+		<input
+ 			class={
+				"mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded",
+				templ.KV("g-recaptcha", vm.hasRecaptcha()),
+			}
+ 			if vm.hasRecaptcha() {
+				data-sitekey={ vm.RecaptchaKey }
+				data-callback="onSubmit"
+				data-action="submit"
+			}
+ 			type="submit"
+ 			value="Register"
+		/>
+		<script src="https://www.google.com/recaptcha/api.js"></script>
+		<script>onSubmit(token) => document.getElementById("register-form").submit()</script>
 	</form>
 }

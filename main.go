@@ -141,6 +141,7 @@ func setupRouter(router *mux.Router, log *slog.Logger, userSrv *service.UserServ
 	)
 	router.HandleFunc("/auth/login", auth.Login).Methods("GET")
 	router.HandleFunc("/auth/register", auth.Register).Methods("GET")
+	router.HandleFunc("/auth/registration-success", auth.RegistrationSuccess).Methods("GET")
 	router.HandleFunc("/auth/register", auth.RegisterAction).Methods("POST")
 }
 

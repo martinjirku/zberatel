@@ -4,17 +4,23 @@ import "jirku.sk/zberatel/template/partials"
 
 type LoginVM struct {
 	Title string
+	Form  partials.LoginFormVM
 }
 
-func NewLoginVM() LoginVM {
+func NewLoginVM(csfrToken, recaptcha, username string) LoginVM {
 	return LoginVM{
 		Title: "Login",
+		Form: partials.LoginFormVM{
+			Username:     username,
+			CsfrToken:    csfrToken,
+			RecaptchaKey: recaptcha,
+		},
 	}
 }
 
 templ Login(vm LoginVM) {
 	<h1>{ vm.Title }</h1>
 	<div class="w-full flex justify-center">
-		@partials.LoginForm()
+		@partials.LoginForm(vm.Form)
 	</div>
 }

@@ -90,8 +90,7 @@ func RegisterForm(mv RegisterFormMV) templ.Component {
 			NewTextInputMV("Password", "Password").
 			WithPlaceholder("Specify the password").
 			WithErrors(mv.GetError("Password")...).
-			WithType("password").
-			WithValue(mv.Password)).Render(ctx, templ_7745c5c3_Buffer)
+			WithType("password")).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -168,12 +167,7 @@ func RegisterForm(mv RegisterFormMV) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var4 := `
-		function onSubmit(token) {
-			console.log("token", token);
-			document.getElementById("register-form").submit();
-		}
- 	`
+		templ_7745c5c3_Var4 := `onSubmit(token) => document.getElementById("register-form").submit()`
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

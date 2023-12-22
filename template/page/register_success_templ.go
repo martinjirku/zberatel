@@ -10,25 +10,12 @@ import "context"
 import "io"
 import "bytes"
 
-import "jirku.sk/zberatel/template/partials"
-
-type LoginVM struct {
-	Title string
-	Form  partials.LoginFormVM
+type RegigisterSucessVM struct {
+	Title    string
+	Username string
 }
 
-func NewLoginVM(csfrToken, recaptcha, username string) LoginVM {
-	return LoginVM{
-		Title: "Login",
-		Form: partials.LoginFormVM{
-			Username:     username,
-			CsfrToken:    csfrToken,
-			RecaptchaKey: recaptcha,
-		},
-	}
-}
-
-func Login(vm LoginVM) templ.Component {
+func RegisterSuccess(vm RegigisterSucessVM) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -41,7 +28,7 @@ func Login(vm LoginVM) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h1>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h1 class=\"text-2xl text-center py-4\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -54,7 +41,18 @@ func Login(vm LoginVM) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = partials.LoginForm(vm.Form).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Var3 := `Thank you for registering `
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var4 string = vm.Username
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Var5 := `!`
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

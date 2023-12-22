@@ -59,8 +59,7 @@ templ RegisterForm(mv RegisterFormMV) {
             NewTextInputMV("Password", "Password").
             WithPlaceholder("Specify the password").
 			WithErrors(mv.GetError("Password")...).
-            WithType("password").
-            WithValue(mv.Password))
+            WithType("password"))
 		@components.TextInput(components.
             NewTextInputMV("Password Confirmation", "PasswordConfirmation").
             WithType("password").
@@ -80,10 +79,5 @@ templ RegisterForm(mv RegisterFormMV) {
 		/>
 	</form>
 	<script src="https://www.google.com/recaptcha/api.js"></script>
-	<script>
-		function onSubmit(token) {
-			console.log("token", token);
-			document.getElementById("register-form").submit();
-		}
- 	</script>
+	<script>onSubmit(token) => document.getElementById("register-form").submit()</script>
 }

@@ -45,15 +45,12 @@ func NewAuth(log *slog.Logger, recaptchaKey, recaptchaSecret string, userSrvc us
 }
 
 func (h *Auth) Login(w http.ResponseWriter, r *http.Request) {
-	content := page.Login(page.NewLoginVM())
+	content := page.Login(page.NewLoginVM(nosurf.Token(r), h.recaptchaKey, ""))
 	layout.Page(layout.NewPageVM("Login")).Render(templ.WithChildren(r.Context(), content), w)
 }
 
 func (h *Auth) Register(w http.ResponseWriter, r *http.Request) {
-	logger := middleware.GetLogger(r.Context(), h.log)
 	pageVM := page.NewRegisterVM(nosurf.Token(r), h.recaptchaKey)
-
-	logger.Debug("sending response", slog.Int("code", http.StatusOK), slog.Any("view-model", pageVM))
 	content := page.Register(pageVM)
 	layout.Page(layout.NewPageVM("Register")).Render(templ.WithChildren(r.Context(), content), w)
 }
@@ -101,6 +98,20 @@ func (h *Auth) RegisterAction(w http.ResponseWriter, r *http.Request) {
 
 	content := page.Register(pageVM)
 	layout.Page(layout.NewPageVM("Register")).Render(templ.WithChildren(r.Context(), content), w)
+}
+
+func (h *Auth) RegistrationSuccess(w http.ResponseWriter, r *http.Request) {
+	logger := middleware.GetLogger(r.Context(), h.log)
+	username := r.URL.Query().Get("username")
+
+	pageVM := page.RegigisterSucessVM{
+		Title:    "Registration success",
+		Username: username,
+	}
+
+	logger.Debug("sending response", slog.Int("code", http.StatusOK), slog.Any("view-model", pageVM))
+	content := page.RegisterSuccess(pageVM)
+	layout.Page(layout.NewPageVM("Successfull Registration")).Render(templ.WithChildren(r.Context(), content), w)
 }
 
 func (h *Auth) decodeRegisterFormValues(r *http.Request, form *partials.RegisterFormMV) error {
