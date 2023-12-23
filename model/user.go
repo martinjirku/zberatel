@@ -1,6 +1,14 @@
 package model
 
-import "github.com/segmentio/ksuid"
+import (
+	"encoding/gob"
+
+	"github.com/segmentio/ksuid"
+)
+
+func init() {
+	gob.Register(UserLogin{})
+}
 
 type UserRegistrationInput struct {
 	Username string `json:"username" validate:"required,min=3,max=20"`

@@ -127,6 +127,7 @@ func setupMiddleware(router *mux.Router, log *slog.Logger) {
 	router.Use(middleware.Recover(middlwareLog(log, "recover")))
 	router.Use(nosurf.NewPure)
 	router.Use(middleware.RequestID(middlwareLog(log, "requestID")))
+	router.Use(middleware.AuthMiddleware)
 	router.Use(middleware.Logger(middlwareLog(log, "logger")))
 }
 

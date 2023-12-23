@@ -61,11 +61,12 @@ func (h *Auth) LoginAction(w http.ResponseWriter, r *http.Request) {
 		pageVM.GlobalError = "Invalid form data"
 		logger.Error("decoding register form data", slog.Any("error", err))
 	} else {
-		_, err := h.userService.LoginUser(r.Context(), model.UserLoginInput{
+		result, err := h.userService.LoginUser(r.Context(), model.UserLoginInput{
 			Username: pageVM.Form.Username,
 			Password: pageVM.Form.Password,
 		})
 		if err == nil {
+			middleware.StoreUser(r, w, result)
 			http.Redirect(w, r, "/", http.StatusFound)
 			return
 		}

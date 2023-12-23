@@ -10,5 +10,6 @@ import (
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	vm := layout.NewPageVM("Home")
+	// _ := middleware.GetUser(r)
 	layout.Page(vm).Render(templ.WithChildren(r.Context(), page.Index()), w)
 }
