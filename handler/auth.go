@@ -45,6 +45,11 @@ func NewAuth(log *slog.Logger, recaptchaKey, recaptchaSecret string, userSrvc us
 	}
 }
 
+func (h *Auth) LogoutAction(w http.ResponseWriter, r *http.Request) {
+	middleware.StoreUser(r, w, nil)
+	http.Redirect(w, r, "/", http.StatusFound)
+}
+
 func (h *Auth) Login(w http.ResponseWriter, r *http.Request) {
 	content := page.Login(page.NewLoginVM(nosurf.Token(r), h.recaptchaKey, ""))
 	layout.Page(layout.NewPageVM("Login")).Render(templ.WithChildren(r.Context(), content), w)
@@ -66,7 +71,7 @@ func (h *Auth) LoginAction(w http.ResponseWriter, r *http.Request) {
 			Password: pageVM.Form.Password,
 		})
 		if err == nil {
-			middleware.StoreUser(r, w, result)
+			middleware.StoreUser(r, w, &result)
 			http.Redirect(w, r, "/", http.StatusFound)
 			return
 		}

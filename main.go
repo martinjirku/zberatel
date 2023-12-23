@@ -18,7 +18,6 @@ import (
 	validator_en "github.com/go-playground/validator/v10/translations/en"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
-	"github.com/justinas/nosurf"
 	"jirku.sk/zberatel/handler"
 	"jirku.sk/zberatel/pkg/middleware"
 	"jirku.sk/zberatel/service"
@@ -125,7 +124,7 @@ func serviceLog(log *slog.Logger, name string) *slog.Logger {
 
 func setupMiddleware(router *mux.Router, log *slog.Logger) {
 	router.Use(middleware.Recover(middlwareLog(log, "recover")))
-	router.Use(nosurf.NewPure)
+	router.Use(middleware.Csrf)
 	router.Use(middleware.RequestID(middlwareLog(log, "requestID")))
 	router.Use(middleware.AuthMiddleware)
 	router.Use(middleware.Logger(middlwareLog(log, "logger")))
@@ -140,6 +139,7 @@ func setupRouter(router *mux.Router, log *slog.Logger, userSrv *service.UserServ
 		userSrv,
 		unSrv,
 	)
+	router.HandleFunc("/auth/logout", auth.LogoutAction).Methods("POST")
 	router.HandleFunc("/auth/login", auth.Login).Methods("GET")
 	router.HandleFunc("/auth/login", auth.LoginAction).Methods("POST")
 	router.HandleFunc("/auth/register", auth.Register).Methods("GET")

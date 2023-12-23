@@ -29,9 +29,14 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func StoreUser(r *http.Request, w http.ResponseWriter, user model.UserLogin) error {
+func StoreUser(r *http.Request, w http.ResponseWriter, user *model.UserLogin) error {
 	session := sessions.NewSession(Store, SessionName)
-	session.Values["user"] = user
+	if user == nil {
+		session.Values["user"] = nil
+	} else {
+		session.Values["user"] = &user
+	}
+
 	session.Options.MaxAge = 60 * 60 * 24 * 10
 	session.Options.HttpOnly = true
 	session.Options.Path = "/"

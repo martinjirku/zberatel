@@ -1,5 +1,8 @@
 package layout
 
+import "jirku.sk/zberatel/model"
+import "github.com/justinas/nosurf"
+
 type scriptType string
 
 var (
@@ -20,9 +23,11 @@ func NewScriptVM(typ scriptType, src string) ScriptVM {
 }
 
 type PageVM struct {
-	Title   string
-	Styles  []string
-	Scripts []ScriptVM
+	Title     string
+	Styles    []string
+	Scripts   []ScriptVM
+	User      *model.UserLogin
+	CsfrToken string
 }
 
 func NewPageVM(title string) PageVM {
@@ -33,34 +38,43 @@ func NewPageVM(title string) PageVM {
 	}
 }
 
-templ Page(page PageVM) {
+templ Page(vm PageVM) {
 	<html lang="sk" class="h-full overflow-x-clip">
 		<head>
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
-			for _, style := range page.Styles {
+			for _, style := range vm.Styles {
 				<link rel="stylesheet" href={ style }/>
 			}
-			// toto remove after tailwindcss is installed
+			// todo remove after tailwindcss is installed
 			<script src="https://cdn.tailwindcss.com"></script>
-			<title>{ page.Title }</title>
+			<title>{ vm.Title }</title>
 		</head>
 		<body>
 			<nav
  				class="flex flex-row bg-slate-900 text-slate-100 text-center justify-center gap-4 py-2"
 			>
-				<div class="p-4">Domov</div>
-				<a href="/auth/login" class="p-4 hover:bg-slate-800 transition-colors duration-200 rounded-lg">
-					Login
-				</a>
-				<a href="/auth/register" class="p-4 hover:bg-slate-800 transition-colors duration-200 rounded-lg">
-					Register
-				</a>
+				<a class="p-4 hover:bg-slate-800 transition-colors duration-200 rounded-lg" href="/">Domov</a>
+				if vm.User == nil {
+					<a href="/auth/login" class="p-4 hover:bg-slate-800 transition-colors duration-200 rounded-lg">
+						Login
+					</a>
+					<a href="/auth/register" class="p-4 hover:bg-slate-800 transition-colors duration-200 rounded-lg">
+						Register
+					</a>
+				} else {
+					<form method="POST" action="/auth/logout" class="p-0 m-0">
+						<input type="hidden" name={ nosurf.FormFieldName } value={ vm.CsfrToken }/>
+						<button class="p-4 hover:bg-slate-800 transition-colors duration-200 rounded-lg">
+							Logout
+						</button>
+					</form>
+				}
 			</nav>
 			<div>
 				{ children... }
 			</div>
-			for _, script := range page.Scripts {
+			for _, script := range vm.Scripts {
 				<script type={ string(script.Type) } src={ script.Src }></script>
 			}
 		</body>
