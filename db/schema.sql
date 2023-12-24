@@ -34,7 +34,7 @@ SET default_table_access_method = heap;
 CREATE TABLE public.collections (
     id bytea NOT NULL,
     collector_id bytea NOT NULL,
-    name character varying(72) NOT NULL,
+    title character varying(72) NOT NULL,
     description character varying(1024),
     type character varying(72) NOT NULL,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,

@@ -30,6 +30,18 @@ func AuthMiddleware(store sessions.Store) mux.MiddlewareFunc {
 	}
 }
 
+func AuthorizeMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user := GetUser(r)
+		if user == nil {
+			// TODO: handle redirect back to original page
+			http.Redirect(w, r, "/auth/login", http.StatusFound)
+		} else {
+			next.ServeHTTP(w, r)
+		}
+	})
+}
+
 func StoreUser(r *http.Request, w http.ResponseWriter, user *model.UserLogin, store sessions.Store) error {
 	session := sessions.NewSession(store, SessionName)
 	if user == nil {

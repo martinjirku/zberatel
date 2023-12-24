@@ -74,10 +74,10 @@ func main() {
 	}
 
 	go func() {
-		userSrv, unSrv, storeSrv := prepareServices(log)
+		userSrv, unSrv, storeSrv, collectionSrv := prepareServices(log)
 		router := mux.NewRouter()
 		setupMiddleware(router, log, storeSrv)
-		setupRouter(router, log, userSrv, unSrv, storeSrv)
+		setupRouter(router, log, userSrv, unSrv, storeSrv, collectionSrv)
 		server.Handler = router
 		<-startChan
 		log.Info(fmt.Sprintf("starting server at %s", server.Addr))
@@ -132,7 +132,7 @@ func setupMiddleware(router *mux.Router, log *slog.Logger, store sessions.Store)
 	router.Use(middleware.Logger(middlwareLog(log, "logger")))
 }
 
-func setupRouter(router *mux.Router, log *slog.Logger, userSrv *service.UserService, unSrv *ut.UniversalTranslator, store sessions.Store) {
+func setupRouter(router *mux.Router, log *slog.Logger, userSrv *service.UserService, unSrv *ut.UniversalTranslator, store sessions.Store, collectionSrv *service.CollectionService) {
 	router.HandleFunc("/", handler.HomeHandler).Methods("GET")
 	auth := handler.NewAuth(
 		handlerLog(log, "auth"),
@@ -148,9 +148,15 @@ func setupRouter(router *mux.Router, log *slog.Logger, userSrv *service.UserServ
 	router.HandleFunc("/auth/register", auth.Register).Methods("GET")
 	router.HandleFunc("/auth/registration-success", auth.RegistrationSuccess).Methods("GET")
 	router.HandleFunc("/auth/register", auth.RegisterAction).Methods("POST")
+
+	collection := handler.NewCollection(handlerLog(log, "collection"), collectionSrv)
+
+	collectionRouter := router.PathPrefix("/collections").Subrouter()
+	collectionRouter.Use(middleware.AuthorizeMiddleware)
+	collectionRouter.HandleFunc("/new", collection.New).Methods("GET")
 }
 
-func prepareServices(log *slog.Logger) (*service.UserService, *ut.UniversalTranslator, sessions.Store) {
+func prepareServices(log *slog.Logger) (*service.UserService, *ut.UniversalTranslator, sessions.Store, *service.CollectionService) {
 	// i18n
 	unSrv := ut.New(en.New())
 	trans, _ := unSrv.GetTranslator("en")
@@ -171,7 +177,8 @@ func prepareServices(log *slog.Logger) (*service.UserService, *ut.UniversalTrans
 	userSrv := service.NewUserService(serviceLog(log, "userService"), db, validator)
 
 	storeSrv := sessions.NewCookieStore([]byte(os.Getenv(SESSION_KEY)))
-	return userSrv, unSrv, storeSrv
+	collectionSrv := service.NewCollectionService(log, db, validator)
+	return userSrv, unSrv, storeSrv, collectionSrv
 }
 
 func configure() (configuration, *slog.Logger) {

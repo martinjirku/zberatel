@@ -2,7 +2,7 @@
 CREATE TABLE collections (
     id BYTEA PRIMARY KEY,
     collector_id BYTEA NOT NULL,
-    name VARCHAR(72) NOT NULL,
+    title VARCHAR(72) NOT NULL,
     description VARCHAR(1024),
     type VARCHAR(72) NOT NULL, -- TODO: extract to a separate table/enum/whatever
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
