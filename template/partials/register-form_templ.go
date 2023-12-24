@@ -12,6 +12,7 @@ import "bytes"
 
 import "jirku.sk/zberatel/template/components"
 import "github.com/justinas/nosurf"
+import "net/http"
 
 type RegisterFormMV struct {
 	Username             string `validate:"required,min=3,max=20"`
@@ -23,9 +24,9 @@ type RegisterFormMV struct {
 	RecaptchaKey         string
 }
 
-func NewRegisterFormMV(csfrToken, recaptcha string) RegisterFormMV {
+func NewRegisterFormMV(r *http.Request, recaptcha string) RegisterFormMV {
 	return RegisterFormMV{
-		Token:        csfrToken,
+		Token:        nosurf.Token(r),
 		RecaptchaKey: recaptcha,
 		Errors:       make(map[string][]string),
 	}

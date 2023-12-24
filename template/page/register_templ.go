@@ -11,6 +11,7 @@ import "io"
 import "bytes"
 
 import "jirku.sk/zberatel/template/partials"
+import "net/http"
 
 type RegisterVM struct {
 	Title   string
@@ -18,10 +19,10 @@ type RegisterVM struct {
 	Form    partials.RegisterFormMV
 }
 
-func NewRegisterVM(csfrToken, recaptcha string) RegisterVM {
+func NewRegisterVM(r *http.Request, recaptcha string) RegisterVM {
 	return RegisterVM{
 		Title: "Register",
-		Form:  partials.NewRegisterFormMV(csfrToken, recaptcha),
+		Form:  partials.NewRegisterFormMV(r, recaptcha),
 	}
 }
 

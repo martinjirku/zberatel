@@ -10,7 +10,9 @@ import "context"
 import "io"
 import "bytes"
 
+import "net/http"
 import "jirku.sk/zberatel/model"
+import "jirku.sk/zberatel/pkg/middleware"
 import "github.com/justinas/nosurf"
 
 type scriptType string
@@ -40,11 +42,13 @@ type PageVM struct {
 	CsfrToken string
 }
 
-func NewPageVM(title string) PageVM {
+func NewPageVM(title string, r *http.Request) PageVM {
 	return PageVM{
-		Title:   title,
-		Styles:  []string{},
-		Scripts: []ScriptVM{},
+		Title:     title,
+		Styles:    []string{},
+		Scripts:   []ScriptVM{},
+		User:      middleware.GetUser(r),
+		CsfrToken: nosurf.Token(r),
 	}
 }
 

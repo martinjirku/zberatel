@@ -10,7 +10,9 @@ import "context"
 import "io"
 import "bytes"
 
+import "net/http"
 import "jirku.sk/zberatel/template/partials"
+import "github.com/justinas/nosurf"
 
 type LoginVM struct {
 	Title       string
@@ -18,15 +20,20 @@ type LoginVM struct {
 	GlobalError string
 }
 
-func NewLoginVM(csfrToken, recaptcha, username string) LoginVM {
+func NewLoginVM(r *http.Request, recaptcha, username string) LoginVM {
 	return LoginVM{
 		Title: "Login",
 		Form: partials.LoginFormVM{
 			Username:     username,
-			CsfrToken:    csfrToken,
+			CsfrToken:    nosurf.Token(r),
 			RecaptchaKey: recaptcha,
 		},
 	}
+}
+
+func (vm LoginVM) WithGlobalError(err string) LoginVM {
+	vm.GlobalError = err
+	return vm
 }
 
 func Login(vm LoginVM) templ.Component {

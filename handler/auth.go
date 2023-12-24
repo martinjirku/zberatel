@@ -13,7 +13,6 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/sessions"
-	"github.com/justinas/nosurf"
 	"jirku.sk/zberatel/model"
 	"jirku.sk/zberatel/pkg/middleware"
 	"jirku.sk/zberatel/template/layout"
@@ -54,47 +53,49 @@ func (h *Auth) LogoutAction(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Auth) Login(w http.ResponseWriter, r *http.Request) {
-	content := page.Login(page.NewLoginVM(nosurf.Token(r), h.recaptchaKey, ""))
-	layout.Page(layout.NewPageVM("Login")).Render(templ.WithChildren(r.Context(), content), w)
+	h.renderLogin(w, r, page.NewLoginVM(r, h.recaptchaKey, ""))
 }
 
 func (h *Auth) LoginAction(w http.ResponseWriter, r *http.Request) {
 	logger := middleware.GetLogger(r.Context(), h.log)
-	pageVM := page.NewLoginVM(nosurf.Token(r), h.recaptchaKey, "")
+	pageVM := page.NewLoginVM(r, h.recaptchaKey, "")
 
 	if err := h.validateCaptcha(r); err != nil {
-		pageVM.GlobalError = "Invalid captcha"
 		logger.Error("decoding register form data", slog.Any("error", err))
-	} else if err = h.decodeLoginFormValues(r, &pageVM.Form); err != nil {
-		pageVM.GlobalError = "Invalid form data"
-		logger.Error("decoding register form data", slog.Any("error", err))
-	} else {
-		result, err := h.userService.LoginUser(r.Context(), model.UserLoginInput{
-			Username: pageVM.Form.Username,
-			Password: pageVM.Form.Password,
-		})
-		if err == nil {
-			middleware.StoreUser(r, w, &result, h.store)
-			http.Redirect(w, r, "/", http.StatusFound)
-			return
-		}
-		pageVM.GlobalError = "Could not login"
+		h.renderLogin(w, r, pageVM.WithGlobalError("Invalid captcha"))
+		return
 	}
+	if err := h.decodeLoginFormValues(r, &pageVM.Form); err != nil {
+		logger.Error("decoding register form data", slog.Any("error", err))
+		h.renderLogin(w, r, pageVM.WithGlobalError("Invalid form data"))
+		return
+	}
+	result, err := h.userService.LoginUser(r.Context(), model.NewUserLoginInput(pageVM.Form.Username, pageVM.Form.Password))
+	if err != nil {
+		h.renderLogin(w, r, pageVM.WithGlobalError("Could not login"))
+		return
+	}
+	middleware.StoreUser(r, w, &result, h.store)
+	http.Redirect(w, r, "/", http.StatusFound)
+}
 
-	w.WriteHeader(http.StatusBadRequest)
-	content := page.Login(pageVM)
-	layout.Page(layout.NewPageVM("Login")).Render(templ.WithChildren(r.Context(), content), w)
+func (h *Auth) renderLogin(w http.ResponseWriter, r *http.Request, vm page.LoginVM) {
+	if vm.GlobalError != "" {
+		w.WriteHeader(http.StatusBadRequest)
+	}
+	content := page.Login(vm)
+	layout.Page(layout.NewPageVM("Login", r)).Render(templ.WithChildren(r.Context(), content), w)
 }
 
 func (h *Auth) Register(w http.ResponseWriter, r *http.Request) {
-	pageVM := page.NewRegisterVM(nosurf.Token(r), h.recaptchaKey)
+	pageVM := page.NewRegisterVM(r, h.recaptchaKey)
 	content := page.Register(pageVM)
-	layout.Page(layout.NewPageVM("Register")).Render(templ.WithChildren(r.Context(), content), w)
+	layout.Page(layout.NewPageVM("Register", r)).Render(templ.WithChildren(r.Context(), content), w)
 }
 
 func (h *Auth) RegisterAction(w http.ResponseWriter, r *http.Request) {
 	logger := middleware.GetLogger(r.Context(), h.log)
-	pageVM := page.NewRegisterVM(nosurf.Token(r), h.recaptchaKey)
+	pageVM := page.NewRegisterVM(r, h.recaptchaKey)
 
 	if err := h.validateCaptcha(r); err != nil {
 		pageVM.Message = "Invalid captcha"
@@ -134,7 +135,7 @@ func (h *Auth) RegisterAction(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(status)
 
 	content := page.Register(pageVM)
-	layout.Page(layout.NewPageVM("Register")).Render(templ.WithChildren(r.Context(), content), w)
+	layout.Page(layout.NewPageVM("Register", r)).Render(templ.WithChildren(r.Context(), content), w)
 }
 
 func (h *Auth) RegistrationSuccess(w http.ResponseWriter, r *http.Request) {
@@ -148,7 +149,7 @@ func (h *Auth) RegistrationSuccess(w http.ResponseWriter, r *http.Request) {
 
 	logger.Debug("sending response", slog.Int("code", http.StatusOK), slog.Any("view-model", pageVM))
 	content := page.RegisterSuccess(pageVM)
-	layout.Page(layout.NewPageVM("Successfull Registration")).Render(templ.WithChildren(r.Context(), content), w)
+	layout.Page(layout.NewPageVM("Successfull Registration", r)).Render(templ.WithChildren(r.Context(), content), w)
 }
 
 func (h *Auth) decodeLoginFormValues(r *http.Request, form *partials.LoginFormVM) error {

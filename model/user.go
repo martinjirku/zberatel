@@ -21,6 +21,13 @@ type UserLoginInput struct {
 	Password string `json:"password"`
 }
 
+func NewUserLoginInput(username, password string) UserLoginInput {
+	return UserLoginInput{
+		Username: username,
+		Password: password,
+	}
+}
+
 type UserLogin struct {
 	ID       ksuid.KSUID `json:"id"`
 	Username string      `json:"username"`
