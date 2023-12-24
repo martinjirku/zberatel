@@ -28,6 +28,34 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: collections; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.collections (
+    id bytea NOT NULL,
+    collector_id bytea NOT NULL,
+    name character varying(72) NOT NULL,
+    description character varying(1024),
+    type character varying(72) NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+--
+-- Name: collectors; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.collectors (
+    id bytea NOT NULL,
+    user_id bytea NOT NULL,
+    description character varying(1024),
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+--
 -- Name: migrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -62,6 +90,22 @@ CREATE TABLE public.users (
 
 
 --
+-- Name: collections collections_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.collections
+    ADD CONSTRAINT collections_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: collectors collectors_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.collectors
+    ADD CONSTRAINT collectors_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: migrations migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -78,10 +122,40 @@ ALTER TABLE ONLY public.users
 
 
 --
+-- Name: collections update_collection_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_collection_updated_at BEFORE UPDATE ON public.collections FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+
+--
+-- Name: collectors update_collector_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_collector_updated_at BEFORE UPDATE ON public.collectors FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+
+--
 -- Name: users update_user_updated_at; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER update_user_updated_at BEFORE UPDATE ON public.users FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+
+--
+-- Name: collections collections_collector_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.collections
+    ADD CONSTRAINT collections_collector_id_fkey FOREIGN KEY (collector_id) REFERENCES public.collectors(id);
+
+
+--
+-- Name: collectors collectors_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.collectors
+    ADD CONSTRAINT collectors_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
@@ -102,4 +176,6 @@ ALTER TABLE ONLY public.user_tokens
 --
 
 INSERT INTO public.migrations (version) VALUES
-    ('20231220150843');
+    ('20231220150843'),
+    ('20231224203447'),
+    ('20231224204720');

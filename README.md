@@ -45,6 +45,8 @@ func AuthRegisterHandler(w http.ResponseWriter, r *http.Request) {
 - i18n is handled by the library [go-playground/universal-translator](https://github.com/go-playground/universal-translator)
 - locales: [go-playground/locales](https://github.com/go-playground/locales)
 
+The goal is support at least two language mutations - english and slovak. 
+
 ### Forms
 
 Form handling is very important.
@@ -62,3 +64,31 @@ Form handling is very important.
  For db we are using the postgres.
  - postgre driver [lib/pq](github.com/lib/pq)
  - schema migration is done by dbmate (install it by brew). To run migration
+
+## Usecases
+
+- As collector, I want to share some information, such name/nick, preferences.
+- As collector, I want to be able to create a Collection, which is list of collectibles owned, or wished by me. A collection has name, description and type of the collectibles.
+- As collector, I want to share the collection with my family, friends.
+- As family member, I want to identify, which collectible I can buy as a gift
+- As collector, I want to see, which collectibles are missing from the collectible set in my collection
+- As collector, I want to explore different collectible sets.
+- As collecter, I want to track basic properties of the collectible (name, serial number, acquisition date, its value, condition, link,...)
+
+## Domain
+
+The goal is to support usercases and its entities:
+
+__Collector__: Represents the users who are collectors. This entity can store information about the collector, like their name, contact information, and preferences.
+
+__Collection__: This entity represents the entire collection owned or wished for by a collector. It can include attributes like collection name, description, and the type of items (e.g., coins, stamps).
+
+__Collectible__: Each individual item in a collection. Attributes might include item name, description, acquisition date, value, and condition.
+
+__CollectibleSet__: Represents a set or series within a collection. For example, a set of coins from a specific era or a series of Hot Wheels cars. This entity could have attributes like set name, theme, and total items in the set.
+
+__Wishlist__: An entity for items that the collector wishes to acquire. Attributes can include desired item names, preferred conditions, and target acquisition dates.
+
+__ItemCondition__: A supplementary entity that details the condition of each CollectibleItem, with attributes like condition rating, details, and date assessed.
+
+__Category__: Represents different categories of collectibles, such as coins, stamps, etc. This helps in classifying CollectibleItems and sets.
