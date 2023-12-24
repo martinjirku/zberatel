@@ -17,6 +17,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	validator_en "github.com/go-playground/validator/v10/translations/en"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
 	"jirku.sk/zberatel/handler"
 	"jirku.sk/zberatel/pkg/middleware"
@@ -57,6 +58,7 @@ const (
 	DB_NAME               = "DB_NAME"
 	DB_USER               = "DB_USER"
 	DB_PWD                = "DB_PWD"
+	SESSION_KEY           = "SESSION_KEY"
 )
 
 func main() {
@@ -72,10 +74,10 @@ func main() {
 	}
 
 	go func() {
-		userSrv, unSrv := prepareServices(log)
+		userSrv, unSrv, storeSrv := prepareServices(log)
 		router := mux.NewRouter()
-		setupMiddleware(router, log)
-		setupRouter(router, log, userSrv, unSrv)
+		setupMiddleware(router, log, storeSrv)
+		setupRouter(router, log, userSrv, unSrv, storeSrv)
 		server.Handler = router
 		<-startChan
 		log.Info(fmt.Sprintf("starting server at %s", server.Addr))
@@ -122,15 +124,15 @@ func serviceLog(log *slog.Logger, name string) *slog.Logger {
 	return log.With(slog.String("type", "service"), slog.String("name", name))
 }
 
-func setupMiddleware(router *mux.Router, log *slog.Logger) {
+func setupMiddleware(router *mux.Router, log *slog.Logger, store sessions.Store) {
 	router.Use(middleware.Recover(middlwareLog(log, "recover")))
 	router.Use(middleware.Csrf)
 	router.Use(middleware.RequestID(middlwareLog(log, "requestID")))
-	router.Use(middleware.AuthMiddleware)
+	router.Use(middleware.AuthMiddleware(store))
 	router.Use(middleware.Logger(middlwareLog(log, "logger")))
 }
 
-func setupRouter(router *mux.Router, log *slog.Logger, userSrv *service.UserService, unSrv *ut.UniversalTranslator) {
+func setupRouter(router *mux.Router, log *slog.Logger, userSrv *service.UserService, unSrv *ut.UniversalTranslator, store sessions.Store) {
 	router.HandleFunc("/", handler.HomeHandler).Methods("GET")
 	auth := handler.NewAuth(
 		handlerLog(log, "auth"),
@@ -138,6 +140,7 @@ func setupRouter(router *mux.Router, log *slog.Logger, userSrv *service.UserServ
 		os.Getenv(GOOGLE_CAPTCHA_SECRET),
 		userSrv,
 		unSrv,
+		store,
 	)
 	router.HandleFunc("/auth/logout", auth.LogoutAction).Methods("POST")
 	router.HandleFunc("/auth/login", auth.Login).Methods("GET")
@@ -147,7 +150,7 @@ func setupRouter(router *mux.Router, log *slog.Logger, userSrv *service.UserServ
 	router.HandleFunc("/auth/register", auth.RegisterAction).Methods("POST")
 }
 
-func prepareServices(log *slog.Logger) (*service.UserService, *ut.UniversalTranslator) {
+func prepareServices(log *slog.Logger) (*service.UserService, *ut.UniversalTranslator, sessions.Store) {
 	// i18n
 	unSrv := ut.New(en.New())
 	trans, _ := unSrv.GetTranslator("en")
@@ -166,7 +169,9 @@ func prepareServices(log *slog.Logger) (*service.UserService, *ut.UniversalTrans
 
 	// Services
 	userSrv := service.NewUserService(serviceLog(log, "userService"), db, validator)
-	return userSrv, unSrv
+
+	storeSrv := sessions.NewCookieStore([]byte(os.Getenv(SESSION_KEY)))
+	return userSrv, unSrv, storeSrv
 }
 
 func configure() (configuration, *slog.Logger) {

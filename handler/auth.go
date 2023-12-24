@@ -12,6 +12,7 @@ import (
 	"github.com/go-playground/form"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
+	"github.com/gorilla/sessions"
 	"github.com/justinas/nosurf"
 	"jirku.sk/zberatel/model"
 	"jirku.sk/zberatel/pkg/middleware"
@@ -32,9 +33,10 @@ type Auth struct {
 	recaptchaKey    string
 	recaptchaSecret string
 	userService     userService
+	store           sessions.Store
 }
 
-func NewAuth(log *slog.Logger, recaptchaKey, recaptchaSecret string, userSrvc userService, ut *ut.UniversalTranslator) *Auth {
+func NewAuth(log *slog.Logger, recaptchaKey, recaptchaSecret string, userSrvc userService, ut *ut.UniversalTranslator, store sessions.Store) *Auth {
 	return &Auth{
 		decoder:         form.NewDecoder(),
 		ut:              ut,
@@ -42,11 +44,12 @@ func NewAuth(log *slog.Logger, recaptchaKey, recaptchaSecret string, userSrvc us
 		recaptchaKey:    recaptchaKey,
 		recaptchaSecret: recaptchaSecret,
 		userService:     userSrvc,
+		store:           store,
 	}
 }
 
 func (h *Auth) LogoutAction(w http.ResponseWriter, r *http.Request) {
-	middleware.StoreUser(r, w, nil)
+	middleware.StoreUser(r, w, nil, h.store)
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
@@ -71,7 +74,7 @@ func (h *Auth) LoginAction(w http.ResponseWriter, r *http.Request) {
 			Password: pageVM.Form.Password,
 		})
 		if err == nil {
-			middleware.StoreUser(r, w, &result)
+			middleware.StoreUser(r, w, &result, h.store)
 			http.Redirect(w, r, "/", http.StatusFound)
 			return
 		}

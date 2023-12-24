@@ -4,11 +4,10 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"jirku.sk/zberatel/model"
 )
-
-var Store = sessions.NewCookieStore([]byte("secret-key"))
 
 const SessionName = "session"
 
@@ -16,21 +15,23 @@ type UserCookie int
 
 const UserCookieKey UserCookie = 0
 
-func AuthMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		session, err := Store.Get(r, SessionName)
-		if err != nil || session.Values["user"] != nil {
-			if user, ok := session.Values["user"].(model.UserLogin); ok {
-				ctx = context.WithValue(ctx, UserCookieKey, user)
+func AuthMiddleware(store sessions.Store) mux.MiddlewareFunc {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			session, err := store.Get(r, SessionName)
+			if err != nil || session.Values["user"] != nil {
+				if user, ok := session.Values["user"].(model.UserLogin); ok {
+					ctx = context.WithValue(ctx, UserCookieKey, user)
+				}
 			}
-		}
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
 }
 
-func StoreUser(r *http.Request, w http.ResponseWriter, user *model.UserLogin) error {
-	session := sessions.NewSession(Store, SessionName)
+func StoreUser(r *http.Request, w http.ResponseWriter, user *model.UserLogin, store sessions.Store) error {
+	session := sessions.NewSession(store, SessionName)
 	if user == nil {
 		session.Values["user"] = nil
 	} else {
