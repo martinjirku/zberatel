@@ -33,6 +33,6 @@ func NewCollection(log *slog.Logger, collectionService collectionService) *Colle
 }
 
 func (h *Collection) New(w http.ResponseWriter, r *http.Request) {
-	vm := layout.NewPageVM("Home", r)
-	layout.Page(vm).Render(templ.WithChildren(r.Context(), page.Index()), w)
+	content := page.CollectionsNew(page.NewCollectionsNewVM(r))
+	layout.Page(layout.NewPageVM("Create new Collection", r)).Render(templ.WithChildren(r.Context(), content), w)
 }

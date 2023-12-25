@@ -1,0 +1,69 @@
+package page
+
+import "net/http"
+import "jirku.sk/zberatel/template/components"
+import "github.com/justinas/nosurf"
+
+type CollectionsNewForm struct {
+	Title       string
+	Description string
+	CsrfToken   string
+	Type        string
+}
+
+type CollectionsNewVM struct {
+	Form   CollectionsNewForm
+	Errors map[string][]string
+}
+
+func NewCollectionsNewVM(r *http.Request) CollectionsNewVM {
+	return CollectionsNewVM{
+		Form: CollectionsNewForm{
+			CsrfToken: nosurf.Token(r),
+		},
+		Errors: map[string][]string{},
+	}
+}
+
+func (vm *CollectionsNewVM) GetError(field string) []string {
+	if v, ok := vm.Errors[field]; ok {
+		return v
+	}
+	return []string{}
+}
+
+templ CollectionsNew(vm CollectionsNewVM) {
+	@components.H1() {
+		New Collection 
+	}
+	<div class="max-w-screen-sm p-4">
+		<form action="/collections" method="post">
+			@components.TextInput(components.
+				NewTextInputMV("Title", "Title").
+				WithPlaceholder("Fill the collection title").
+				WithErrors(vm.GetError("Title")...).
+				WithValue(vm.Form.Title))
+			@components.TextInput(components.
+				NewTextInputMV("Description", "Description").
+				WithPlaceholder("Write something about the Collection").
+				WithErrors(vm.GetError("Description")...).
+				WithValue(vm.Form.Description))
+			@components.Select(components.
+				NewSelectVM("Type", "Type").
+				WithErrors(vm.GetError("Type")...).
+				WithOptions(components.NewSelectOption("PopHead", "PopHead"),
+					components.NewSelectOption("Stamp", "Stamp"),
+					components.NewSelectOption("HotWheel", "HotWheel"),
+					components.NewSelectOption("LoL", "LOL"),
+					components.NewSelectOption("Coins", "Coins"),
+				).
+				WithValue(vm.Form.Type))
+			<input type="hidden" name={ nosurf.FormFieldName } value={ vm.Form.CsrfToken }/>
+			<div class="py-2 w-full flex justify-end">
+				@components.Btn("submit") {
+					Create 
+				}
+			</div>
+		</form>
+	</div>
+}
