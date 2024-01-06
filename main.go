@@ -154,6 +154,7 @@ func setupRouter(router *mux.Router, log *slog.Logger, userSrv *service.UserServ
 	collectionRouter := router.PathPrefix("/collections").Subrouter()
 	collectionRouter.Use(middleware.AuthorizeMiddleware)
 	collectionRouter.HandleFunc("/new", collection.New).Methods("GET")
+	collectionRouter.HandleFunc("/new", collection.NewAction).Methods("POST")
 }
 
 func prepareServices(log *slog.Logger) (*service.UserService, *ut.UniversalTranslator, sessions.Store, *service.CollectionService) {

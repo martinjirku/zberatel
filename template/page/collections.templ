@@ -37,7 +37,7 @@ templ CollectionsNew(vm CollectionsNewVM) {
 		New Collection 
 	}
 	<div class="max-w-screen-sm p-4">
-		<form action="/collections" method="post">
+		<form action="/collections/new" method="post">
 			@components.TextInput(components.
 				NewTextInputMV("Title", "Title").
 				WithPlaceholder("Fill the collection title").

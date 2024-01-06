@@ -36,3 +36,8 @@ func (h *Collection) New(w http.ResponseWriter, r *http.Request) {
 	content := page.CollectionsNew(page.NewCollectionsNewVM(r))
 	layout.Page(layout.NewPageVM("Create new Collection", r)).Render(templ.WithChildren(r.Context(), content), w)
 }
+
+func (h *Collection) NewAction(w http.ResponseWriter, r *http.Request) {
+	content := page.CollectionsNew(page.NewCollectionsNewVM(r))
+	layout.Page(layout.NewPageVM("Create new Collection", r)).Render(templ.WithChildren(r.Context(), content), w)
+}

@@ -1,18 +1,20 @@
 version: '3'
 
 vars:
-  GREETING: Hello, World!
 
 dotenv: ['.env']
 
 tasks:
   default:
     cmds:
-      - echo "{{.GREETING}}"
+    - go run main.go
     silent: true
   db:
     cmds:
       - ./scripts/db-start-docker.sh --name=$DB_DOCKER_NAME --db=$DB_NAME --user=$DB_USER --password=$DB_PWD --port=5432
   dbup:
     cmds:
-      - dbmate --url "postgres://$DB_USER:$DB_PWD@$DB_HOST:$DB_PORT/$DB_NAME?sslmode=disable" up
+      - dbmate up
+  psql:
+    cmds:
+      - PGPASSWORD=$DB_PWD psql -h $DB_ADDR -p $DB_PORT -d $DB_NAME -U $DB_USER
