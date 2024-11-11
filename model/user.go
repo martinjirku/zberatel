@@ -11,9 +11,9 @@ func init() {
 }
 
 type UserRegistrationInput struct {
-	Username string `json:"username" validate:"required,min=3,max=20"`
+	Username string `json:"username" validate:"required,min=3,max=25"`
 	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,min=8,max=64"`
+	Password string `json:"password" validate:"required,min=8,max=256"`
 }
 
 type UserLoginInput struct {

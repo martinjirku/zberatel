@@ -5,16 +5,22 @@ vars:
 dotenv: ['.env']
 
 tasks:
-  default:
-    cmds:
-    - go run main.go
-    silent: true
   db:
+    desc: startup the database
     cmds:
       - ./scripts/db-start-docker.sh --name=$DB_DOCKER_NAME --db=$DB_NAME --user=$DB_USER --password=$DB_PWD --port=5432
-  dbup:
+  migration:generate:
+    desc: run db migration
     cmds:
-      - dbmate up
+      - atlas migrate diff init \
+        --to file://db/schema.sql \
+        --dir "file://db/migrations" \
+        --dev-url "postgres://$DB_USER:$DB_PWD@$DB_ADDR:$DB_PORT/$DB_NAME?sslmode=disable" \
+        --format '{{ sql . "  "}}'
+  pgcli:
+    desc: query the database
+    cmds:
+      - pgcli postgres://$DB_USER:$DB_PWD@$DB_ADDR:$DB_PORT/$DB_NAME?sslmode=disable
   psql:
     cmds:
       - PGPASSWORD=$DB_PWD psql -h $DB_ADDR -p $DB_PORT -d $DB_NAME -U $DB_USER

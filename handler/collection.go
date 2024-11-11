@@ -3,13 +3,9 @@ package handler
 import (
 	"context"
 	"log/slog"
-	"net/http"
 
-	"github.com/a-h/templ"
 	"github.com/segmentio/ksuid"
 	"jirku.sk/zberatel/model"
-	"jirku.sk/zberatel/template/layout"
-	"jirku.sk/zberatel/template/page"
 )
 
 type collectionService interface {
@@ -32,12 +28,12 @@ func NewCollection(log *slog.Logger, collectionService collectionService) *Colle
 	}
 }
 
-func (h *Collection) New(w http.ResponseWriter, r *http.Request) {
-	content := page.CollectionsNew(page.NewCollectionsNewVM(r))
-	layout.Page(layout.NewPageVM("Create new Collection", r)).Render(templ.WithChildren(r.Context(), content), w)
-}
+// func (h *Collection) New(w http.ResponseWriter, r *http.Request) {
+// 	content := page.CollectionsNew(page.NewCollectionsNewVM(r))
+// 	layout.Page(layout.NewPageVM("Create new Collection", r)).Render(templ.WithChildren(r.Context(), content), w)
+// }
 
-func (h *Collection) NewAction(w http.ResponseWriter, r *http.Request) {
-	content := page.CollectionsNew(page.NewCollectionsNewVM(r))
-	layout.Page(layout.NewPageVM("Create new Collection", r)).Render(templ.WithChildren(r.Context(), content), w)
-}
+// func (h *Collection) NewAction(w http.ResponseWriter, r *http.Request) {
+// 	content := page.CollectionsNew(page.NewCollectionsNewVM(r))
+// 	layout.Page(layout.NewPageVM("Create new Collection", r)).Render(templ.WithChildren(r.Context(), content), w)
+// }

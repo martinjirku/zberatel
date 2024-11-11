@@ -1,0 +1,10 @@
+{{- define "content" -}}
+
+{{- $title := .Title -}}
+{{- $username := .Content.username -}}
+
+<h1 class="text-2xl text-center py-4">{{ $title }}</h1>
+<div class="w-full flex justify-center">
+    Thank you for registering {{$username}}!
+</div>
+{{- end -}}

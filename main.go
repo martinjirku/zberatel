@@ -3,8 +3,11 @@ package main
 import (
 	"context"
 	"database/sql"
+	"embed"
 	"flag"
 	"fmt"
+	"html/template"
+	"io/fs"
 	"log/slog"
 	"net/http"
 	"os"
@@ -16,6 +19,12 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	validator_en "github.com/go-playground/validator/v10/translations/en"
+	"github.com/go-sprout/sprout"
+	"github.com/go-sprout/sprout/registry/conversion"
+	"github.com/go-sprout/sprout/registry/maps"
+	"github.com/go-sprout/sprout/registry/slices"
+	"github.com/go-sprout/sprout/registry/std"
+	"github.com/go-sprout/sprout/registry/strings"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
@@ -51,15 +60,18 @@ func (c *configuration) Level() slog.Level {
 }
 
 const (
-	GOOGLE_CAPTCHA_SITE   = "GOOGLE_CAPTCHA_SITE"
-	GOOGLE_CAPTCHA_SECRET = "GOOGLE_CAPTCHA_SECRET"
-	DB_ADDR               = "DB_ADDR"
-	DB_PORT               = "DB_PORT"
-	DB_NAME               = "DB_NAME"
-	DB_USER               = "DB_USER"
-	DB_PWD                = "DB_PWD"
-	SESSION_KEY           = "SESSION_KEY"
+	GOOGLE_CAPTCHA_ID = "GOOGLE_CAPTCHA_ID"
+	GOOGLE_API_KEY    = "GOOGLE_API_KEY"
+	DB_ADDR           = "DB_ADDR"
+	DB_PORT           = "DB_PORT"
+	DB_NAME           = "DB_NAME"
+	DB_USER           = "DB_USER"
+	DB_PWD            = "DB_PWD"
+	SESSION_KEY       = "SESSION_KEY"
 )
+
+//go:embed template/**/*.tmpl
+var distFS embed.FS
 
 func main() {
 	// Channel to signal the server to start
@@ -133,28 +145,47 @@ func setupMiddleware(router *mux.Router, log *slog.Logger, store sessions.Store)
 }
 
 func setupRouter(router *mux.Router, log *slog.Logger, userSrv *service.UserService, unSrv *ut.UniversalTranslator, store sessions.Store, collectionSrv *service.CollectionService) {
-	router.HandleFunc("/", handler.HomeHandler).Methods("GET")
-	auth := handler.NewAuth(
-		handlerLog(log, "auth"),
-		os.Getenv(GOOGLE_CAPTCHA_SITE),
-		os.Getenv(GOOGLE_CAPTCHA_SECRET),
-		userSrv,
-		unSrv,
-		store,
-	)
+	tmpl := getTemplate(log, distFS)
+	router.HandleFunc("/", handler.HomeHandler(tmpl("index"))).Methods("GET")
+	auth := handler.NewAuth(handlerLog(log, "auth"), os.Getenv(GOOGLE_CAPTCHA_ID), os.Getenv(GOOGLE_API_KEY),
+		userSrv, unSrv, store)
 	router.HandleFunc("/auth/logout", auth.LogoutAction).Methods("POST")
-	router.HandleFunc("/auth/login", auth.Login).Methods("GET")
-	router.HandleFunc("/auth/login", auth.LoginAction).Methods("POST")
-	router.HandleFunc("/auth/register", auth.Register).Methods("GET")
-	router.HandleFunc("/auth/registration-success", auth.RegistrationSuccess).Methods("GET")
-	router.HandleFunc("/auth/register", auth.RegisterAction).Methods("POST")
+	router.HandleFunc("/auth/login", auth.Login(tmpl("login"))).Methods("GET")
+	router.HandleFunc("/auth/login", auth.LoginAction(tmpl("login"))).Methods("POST")
+	router.HandleFunc("/auth/register", auth.Register(tmpl("register"))).Methods("GET")
+	router.HandleFunc("/auth/register", auth.RegisterAction(tmpl("register"))).Methods("POST")
+	router.HandleFunc("/auth/registration-success", auth.RegistrationSuccess(tmpl("register-success"))).Methods("GET")
 
-	collection := handler.NewCollection(handlerLog(log, "collection"), collectionSrv)
+	// collection := handler.NewCollection(handlerLog(log, "collection"), collectionSrv)
 
 	collectionRouter := router.PathPrefix("/collections").Subrouter()
 	collectionRouter.Use(middleware.AuthorizeMiddleware)
-	collectionRouter.HandleFunc("/new", collection.New).Methods("GET")
-	collectionRouter.HandleFunc("/new", collection.NewAction).Methods("POST")
+	// collectionRouter.HandleFunc("/new", collection.New).Methods("GET")
+	// collectionRouter.HandleFunc("/new", collection.NewAction).Methods("POST")
+}
+
+func getTemplate(log *slog.Logger, distFS fs.FS) func(string) *template.Template {
+	sproutHandler := sprout.New(
+		sprout.WithLogger(log),
+		sprout.WithRegistries(
+			conversion.NewRegistry(),
+			std.NewRegistry(),
+			maps.NewRegistry(),
+			strings.NewRegistry(),
+			slices.NewRegistry(),
+		))
+	return func(page string) *template.Template {
+		path := fmt.Sprintf("template/page/%s.tmpl", page)
+		tmpl, err := template.
+			New("base").
+			Funcs(sproutHandler.Build()).
+			ParseFS(distFS, "template/**/*.tmpl", path)
+		if err != nil {
+			log.Error("loading templates", slog.Any("error", err), slog.String("template", path))
+			os.Exit(1)
+		}
+		return tmpl
+	}
 }
 
 func prepareServices(log *slog.Logger) (*service.UserService, *ut.UniversalTranslator, sessions.Store, *service.CollectionService) {

@@ -2,7 +2,7 @@
 
 ## Prepare environment
 
-- dbmate - database migration tools: `brew install dbmate`
+- atlas - database migration tools: `brew install ariga/tap/atlas`
 - Task - running tasks: `go install github.com/go-task/task/v3/cmd/task@latest`
 - Air - watch&reload server `go install github.com/cosmtrek/air@latest`
 - Templ - install templ for template rendering `go install github.com/a-h/templ/cmd/templ@latest` 
@@ -18,7 +18,20 @@
 - Start server and watch it. `air`
 - Start docker DatabaseStart - postgre by running docker. `task db`
 
-
+- Generate migration file after change:
+  ```sh
+  atlas migrate diff "MIGRATION_NAME" \
+      --to file://db/schema.sql \
+      --dir "file://db/migrations" \
+      --dev-url "postgres://$DB_USER:$DB_PWD@$DB_ADDR:$DB_PORT/$DB_NAME?sslmode=disable" \
+      --format '{{ sql . "  "}}'
+  ```
+- Run migrations
+  ```sh
+  atlas migrate apply \
+    --dir "file://db/migrations" \
+    --url "postgres://$DB_USER:$DB_PWD@$DB_ADDR:$DB_PORT/$DB_NAME?sslmode=disable"
+  ```
 ## Architecture
 
 Architecutre of the rendering is mix of templ templates. Each templ should have its view-model struct. E.g. Login will have LoginVM. This is naming convetion, but it increase simplicity. The downside is, that each templ component needs to define its own view-model struct.
@@ -58,6 +71,22 @@ Form handling is very important.
 
  - env file is read by the library [joho/godotenv](https://github.com/joho/godotenv)
  - flags are read by the standard library
+
+ #### GOOGLE_CAPTCHA_SITE
+
+    - go to https://console.cloud.google.com/ 
+    - click on "View All Products" (or menu button on upper left corner next to Google Cloud)
+    - Select "Security" (you need to go into the menu)
+    - Look for "Detection and Controls" > then click reCAPTCHA
+    - Create Key (Follow the instructions, platform type is Website)
+    - Copy the ID and assign it to GOOGLE_CAPTCHA_KEY
+
+
+#### GOOGLE_API_KEY
+
+  - go to https://console.cloud.google.com/
+  - Go to "View All Products" and select APIs & Services > then Credentials
+  - create new API KEY and assign it to GOOGLE_API_KEY
 
  ### db
 
