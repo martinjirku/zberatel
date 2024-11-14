@@ -21,6 +21,7 @@ import (
 	validator_en "github.com/go-playground/validator/v10/translations/en"
 	"github.com/go-sprout/sprout"
 	"github.com/go-sprout/sprout/registry/conversion"
+	sproutEncoding "github.com/go-sprout/sprout/registry/encoding"
 	"github.com/go-sprout/sprout/registry/maps"
 	"github.com/go-sprout/sprout/registry/slices"
 	"github.com/go-sprout/sprout/registry/std"
@@ -28,6 +29,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
+	"jirku.sk/zberatel/db"
 	"jirku.sk/zberatel/handler"
 	"jirku.sk/zberatel/pkg/middleware"
 	"jirku.sk/zberatel/service"
@@ -86,10 +88,10 @@ func main() {
 	}
 
 	go func() {
-		userSrv, unSrv, storeSrv, collectionSrv := prepareServices(log)
+		userSrv, unSrv, storeSrv, collectionSrv, db := prepareServices(log)
 		router := mux.NewRouter()
 		setupMiddleware(router, log, storeSrv)
-		setupRouter(router, log, userSrv, unSrv, storeSrv, collectionSrv)
+		setupRouter(router, log, userSrv, unSrv, storeSrv, collectionSrv, db)
 		server.Handler = router
 		<-startChan
 		log.Info(fmt.Sprintf("starting server at %s", server.Addr))
@@ -144,7 +146,7 @@ func setupMiddleware(router *mux.Router, log *slog.Logger, store sessions.Store)
 	router.Use(middleware.Logger(middlwareLog(log, "logger")))
 }
 
-func setupRouter(router *mux.Router, log *slog.Logger, userSrv *service.UserService, unSrv *ut.UniversalTranslator, store sessions.Store, collectionSrv *service.CollectionService) {
+func setupRouter(router *mux.Router, log *slog.Logger, userSrv *service.UserService, unSrv *ut.UniversalTranslator, store sessions.Store, collectionSrv *service.CollectionService, sqlDB *sql.DB) {
 	tmpl := getTemplate(log, distFS)
 	router.HandleFunc("/", handler.HomeHandler(tmpl("index"))).Methods("GET")
 	auth := handler.NewAuth(handlerLog(log, "auth"), os.Getenv(GOOGLE_CAPTCHA_ID), os.Getenv(GOOGLE_API_KEY),
@@ -156,12 +158,12 @@ func setupRouter(router *mux.Router, log *slog.Logger, userSrv *service.UserServ
 	router.HandleFunc("/auth/register", auth.RegisterAction(tmpl("register"))).Methods("POST")
 	router.HandleFunc("/auth/registration-success", auth.RegistrationSuccess(tmpl("register-success"))).Methods("GET")
 
-	// collection := handler.NewCollection(handlerLog(log, "collection"), collectionSrv)
+	collection := handler.NewCollection(handlerLog(log, "collection"), db.New(sqlDB), collectionSrv)
 
 	collectionRouter := router.PathPrefix("/collections").Subrouter()
 	collectionRouter.Use(middleware.AuthorizeMiddleware)
-	// collectionRouter.HandleFunc("/new", collection.New).Methods("GET")
-	// collectionRouter.HandleFunc("/new", collection.NewAction).Methods("POST")
+	collectionRouter.HandleFunc("/new", collection.New(tmpl("collections.new"))).Methods("GET")
+	collectionRouter.HandleFunc("/new", collection.NewAction(tmpl("collections.new"))).Methods("POST")
 }
 
 func getTemplate(log *slog.Logger, distFS fs.FS) func(string) *template.Template {
@@ -173,6 +175,7 @@ func getTemplate(log *slog.Logger, distFS fs.FS) func(string) *template.Template
 			maps.NewRegistry(),
 			strings.NewRegistry(),
 			slices.NewRegistry(),
+			sproutEncoding.NewRegistry(),
 		))
 	return func(page string) *template.Template {
 		path := fmt.Sprintf("template/page/%s.tmpl", page)
@@ -188,7 +191,7 @@ func getTemplate(log *slog.Logger, distFS fs.FS) func(string) *template.Template
 	}
 }
 
-func prepareServices(log *slog.Logger) (*service.UserService, *ut.UniversalTranslator, sessions.Store, *service.CollectionService) {
+func prepareServices(log *slog.Logger) (*service.UserService, *ut.UniversalTranslator, sessions.Store, *service.CollectionService, *sql.DB) {
 	// i18n
 	unSrv := ut.New(en.New())
 	trans, _ := unSrv.GetTranslator("en")
@@ -210,7 +213,7 @@ func prepareServices(log *slog.Logger) (*service.UserService, *ut.UniversalTrans
 
 	storeSrv := sessions.NewCookieStore([]byte(os.Getenv(SESSION_KEY)))
 	collectionSrv := service.NewCollectionService(log, db, validator)
-	return userSrv, unSrv, storeSrv, collectionSrv
+	return userSrv, unSrv, storeSrv, collectionSrv, db
 }
 
 func configure() (configuration, *slog.Logger) {

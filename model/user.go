@@ -2,8 +2,6 @@ package model
 
 import (
 	"encoding/gob"
-
-	"github.com/segmentio/ksuid"
 )
 
 func init() {
@@ -29,7 +27,7 @@ func NewUserLoginInput(username, password string) UserLoginInput {
 }
 
 type UserLogin struct {
-	ID       ksuid.KSUID `json:"id"`
-	Username string      `json:"username"`
-	Email    string      `json:"email"`
+	ID       KSUID  `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
 }

@@ -1,6 +1,6 @@
 version: "2"
 sql:
-  - schema: "db/schema.sql"
+  - schema: "schema.sql"
     queries: "db/queries.sql"
     engine: "postgresql"
     gen:
@@ -8,4 +8,6 @@ sql:
         package: "db"
         out: "db"
         sql_package: "database/sql"
-        omit_unused_structs: true
+        overrides:
+          - db_type: "ksuid"
+            go_type: "jirku.sk/zberatel/model.KSUID"

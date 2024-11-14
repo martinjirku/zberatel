@@ -1,6 +1,8 @@
+CREATE DOMAIN ksuid AS BYTEA;
+
 CREATE TABLE users (
     -- reconsider the BYTEA type for ksuid
-    id BYTEA PRIMARY KEY,
+    id ksuid PRIMARY KEY,
     username VARCHAR(72) NOT NULL,
     password VARCHAR(72) NOT NULL,
     email VARCHAR(72) NOT NULL,
@@ -23,14 +25,14 @@ FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 
 CREATE TABLE user_tokens (
     -- reconsider the BYTEA vs VARCHAR(27) type for ksuid
-    user_id BYTEA NOT NULL,
-    token BYTEA NOT NULL,
+    user_id ksuid NOT NULL,
+    token ksuid NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 CREATE TABLE collectors (
-    id BYTEA PRIMARY KEY,
-    user_id BYTEA NOT NULL,
+    id ksuid PRIMARY KEY,
+    user_id ksuid NOT NULL,
     description VARCHAR(1024),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -42,15 +44,15 @@ CREATE TRIGGER update_collector_updated_at BEFORE UPDATE ON collectors
 FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 
 CREATE TABLE collections (
-    id BYTEA PRIMARY KEY,
-    collector_id BYTEA NOT NULL,
+    id ksuid PRIMARY KEY,
+    user_id ksuid NOT NULL,
     title VARCHAR(72) NOT NULL,
     description VARCHAR(1024),
     type VARCHAR(72) NOT NULL, -- TODO: extract to a separate table/enum/whatever
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (collector_id) REFERENCES collectors(id)
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 CREATE TRIGGER update_collection_updated_at BEFORE UPDATE ON collections

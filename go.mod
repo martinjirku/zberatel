@@ -5,7 +5,6 @@ go 1.22.5
 toolchain go1.23.2
 
 require (
-	github.com/a-h/templ v0.2.501
 	github.com/go-playground/form v3.1.4+incompatible
 	github.com/go-playground/locales v0.14.1
 	github.com/go-playground/universal-translator v0.18.1
@@ -30,4 +29,5 @@ require (
 	golang.org/x/sys v0.22.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

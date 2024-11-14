@@ -20,10 +20,9 @@
 
 - Generate migration file after change:
   ```sh
-  atlas migrate diff "MIGRATION_NAME" \
-      --to file://db/schema.sql \
-      --dir "file://db/migrations" \
-      --dev-url "postgres://$DB_USER:$DB_PWD@$DB_ADDR:$DB_PORT/$DB_NAME?sslmode=disable" \
+  atlas migrate diff ksuid_type \
+      --dev-url "docker://postgres/15/dev?search_path=public" \
+      --to "file://schema.sql" \
       --format '{{ sql . "  "}}'
   ```
 - Run migrations

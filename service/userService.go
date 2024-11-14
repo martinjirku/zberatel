@@ -7,7 +7,6 @@ import (
 	"log/slog"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/segmentio/ksuid"
 	"jirku.sk/zberatel/db"
 	"jirku.sk/zberatel/model"
 	"jirku.sk/zberatel/pkg/middleware"
@@ -43,10 +42,7 @@ func (s *UserService) LoginUser(ctx context.Context, input model.UserLoginInput)
 		return result, fmt.Errorf("invalid password")
 	}
 	result.Email = resp.Email
-	result.ID, err = ksuid.FromBytes(resp.ID)
-	if err != nil {
-		return result, fmt.Errorf("invalid ID")
-	}
+	result.ID = resp.ID
 	return result, nil
 }
 
@@ -58,21 +54,13 @@ func (s *UserService) RegisterUser(ctx context.Context, input model.UserRegistra
 		return err
 	}
 	logger.Info("RegisterUser", slog.String("username", input.Username), slog.String("email", input.Username))
-	ID, err := ksuid.NewRandom()
-	if err != nil {
-		logger.Error("Generating ID", slog.Any("error", err))
-		return fmt.Errorf("error generating ID: %w", err)
-	}
-	emailToken, err := ksuid.NewRandom()
-	if err != nil {
-		logger.Error("Generating email token", slog.Any("error", err))
-		return fmt.Errorf("error generating email token: %w", err)
-	}
+	ID := model.NewKSUID()
+	emailToken := model.NewKSUID()
 	entity := db.RegisterUserParams{
-		ID:       ID.Bytes(),
+		ID:       ID,
 		Username: input.Username,
 		Email:    input.Email,
-		Token:    emailToken.Bytes(),
+		Token:    emailToken,
 	}
 	entity.Password, err = password.HashPassword(input.Password)
 	if err != nil {
