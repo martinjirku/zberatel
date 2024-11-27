@@ -1,4 +1,1 @@
-tmp/
-pgdata/
-.env
-__debug*
+.DS_Store

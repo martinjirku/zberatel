@@ -1,0 +1,58 @@
+type Query {
+  myCollectionsList(input: CollectionsListInput!): CollectionsListResp!
+    @hasRole(role: COLLECTOR)
+  collectionsList(input: CollectionsListInput!): CollectionsListResp!
+}
+type Mutation {
+  createCollection(input: CreateCollectionInput!): CreateCollectionResp!
+    @hasRole(role: COLLECTOR)
+}
+
+# INPUTS
+
+input CollectionsListInput {
+  paging: PagingInput!
+}
+
+input CreateCollectionInput {
+  title: String!
+  description: String
+  type: String
+}
+
+# ENUMS
+
+enum CollectionVariant {
+  NORMAL
+  BLUEPRINT
+}
+
+# TYPES
+
+type Collection {
+  id: KSUID!
+  title: String!
+  description: String
+  type: String
+  variant: CollectionVariant!
+  createdAt: Date!
+}
+
+type Meta {
+  total: Int!
+  prevPage: Paging
+  currentPage: Paging!
+  nextPage: Paging
+}
+
+# RESPONSES
+
+type CollectionsListResp {
+  items: [Collection!]!
+  meta: Meta!
+}
+
+type CreateCollectionResp {
+  success: Boolean!
+  data: Collection
+}

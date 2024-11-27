@@ -1,0 +1,4 @@
+schema:
+  - "../kulektor-api/graph/schema.graphqls"
+  - "../kulektor-api/graph/collections.graphqls"
+documents: "./src/**/*.{go,graphql,graphqls,js,ts,jsx,tsx}"

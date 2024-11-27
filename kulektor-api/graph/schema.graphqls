@@ -1,0 +1,44 @@
+directive @goModel(
+  model: String
+  models: [String!]
+) on OBJECT | INPUT_OBJECT | SCALAR | ENUM | INTERFACE | UNION
+
+directive @goField(
+  forceResolver: Boolean
+  name: String
+  omittable: Boolean
+) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+
+directive @hasRole(role: Role!) on FIELD_DEFINITION
+
+directive @goExtraField(
+  name: String
+  type: String!
+  overrideTags: String
+  description: String
+) repeatable on OBJECT | INPUT_OBJECT
+
+scalar Date
+scalar KSUID
+
+enum Role {
+  PUBLIC
+  COLLECTOR
+  ADMIN
+}
+
+type User {
+  uid: String!
+  email: String!
+  role: Role!
+}
+
+input PagingInput {
+  limit: Int
+  offset: Int
+}
+
+type Paging {
+  limit: Int
+  offset: Int
+}

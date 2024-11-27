@@ -1,0 +1,7 @@
+tmp/
+pgdata/
+__debug*
+vendor/
+certs/
+.env.local
+.vscode

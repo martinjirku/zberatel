@@ -1,0 +1,4 @@
+schema:
+  - "./graph/schema.graphqls"
+  - "./graph/collections.graphqls"
+documents: "./graph/**/*.{go,graphql,graphqls,js,ts,jsx,tsx}"

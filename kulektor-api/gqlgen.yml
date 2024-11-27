@@ -1,0 +1,63 @@
+# Where are all the schema files located? globs are supported eg  src/**/*.graphqls
+schema:
+  - graph/*.graphqls
+
+# Where should the generated server code go?
+exec:
+  filename: graph/generated.go
+  package: graph
+
+model:
+  filename: graph/model/models_gen.go
+  package: model
+
+# Where should the resolver implementations go?
+resolver:
+  layout: follow-schema
+  dir: graph
+  package: graph
+  filename_template: "{name}.resolvers.go"
+
+# Optional: if this is set to true, argument directives that
+# decorate a field with a null value will still be called.
+#
+# This enables argumment directives to not just mutate
+# argument values but to set them even if they're null.
+call_argument_directives_with_null: true
+
+# Optional: turn on to use []Thing instead of []*Thing
+omit_slice_element_pointers: true
+
+# Optional: turn on use ` + "`" + `gqlgen:"fieldName"` + "`" + ` tags in your models
+struct_tag: json
+
+# gqlgen will search for any type names in the schema in these go packages
+# if they match it will use them, otherwise it will generate them.
+autobind:
+
+models:
+  KSUID:
+    model:
+      - jirku.sk/kulektor/ksuid.KSUID
+  UUID:
+    model:
+      - github.com/99designs/gqlgen/graphql.UUID
+  ID:
+    model:
+      - github.com/99designs/gqlgen/graphql.ID
+      - github.com/99designs/gqlgen/graphql.Int
+      - github.com/99designs/gqlgen/graphql.Int64
+      - github.com/99designs/gqlgen/graphql.Int32
+  Int:
+    model:
+      - github.com/99designs/gqlgen/graphql.Int
+      - github.com/99designs/gqlgen/graphql.Int64
+      - github.com/99designs/gqlgen/graphql.Int32
+  Date:
+    model: github.com/99designs/gqlgen/graphql.Time
+  Role:
+    model: jirku.sk/kulektor/auth.Role
+  Paging:
+    model: jirku.sk/kulektor/grid.Paging
+  PagingInput:
+    model: jirku.sk/kulektor/grid.Paging

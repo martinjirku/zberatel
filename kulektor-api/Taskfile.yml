@@ -1,0 +1,53 @@
+version: "3"
+
+vars:
+
+dotenv: [".env"]
+
+tasks:
+  db:
+    desc: startup the database
+    cmds:
+      - ./scripts/db-start-docker.sh --name=$DB_DOCKER_NAME --db=$DB_NAME --user=$DB_USER --password=$DB_PWD --port=5432
+  db:up:
+    desc: apply migrations
+    deps: ["db"]
+    cmds:
+      - >-
+        atlas migrate apply 
+        --dir "file://migrations"
+        --url "postgres://$DB_USER:$DB_PWD@$DB_ADDR:$DB_PORT/$DB_NAME?sslmode=disable"
+  migration:generate:
+    desc: run db migration
+    cmds:
+      - >-
+        if [ -z "{{.CLI_ARGS}}" ]; then
+          echo "Error: migration name is required. Please provide a name for the migration." >&2
+          exit 1
+        fi
+      - atlas migrate diff {{.CLI_ARGS}} --dev-url "docker://postgres/15/kulektor?search_path=public" --to "file://schema.sql" --format '{{`{{ sql . " "}}`}}'
+    silent: true
+  migration:hash:
+    desc: recalculate migration hash after mistake
+    cmds:
+      - atlas migrate hash
+  certs:generate:
+    desc: generates self-signed certificates
+    cmds:
+      - openssl req -x509 -newkey rsa:4096 -keyout ./certs/key.pem -out ./certs/cert.pem -days 365
+  gql:generate:
+    desc: generate graphql
+    cmds:
+      - go run github.com/99designs/gqlgen generate
+  pgcli:
+    desc: query the database
+    cmds:
+      - pgcli postgres://$DB_USER:$DB_PWD@$DB_ADDR:$DB_PORT/$DB_NAME?sslmode=disable
+  psql:
+    desc: connect using psql
+    cmds:
+      - PGPASSWORD=$DB_PWD psql -h $DB_ADDR -p $DB_PORT -d $DB_NAME -U $DB_USER
+  token:
+    desc: parse token from clipboard
+    cmds:
+      - pbpaste | go run github.com/golang-jwt/jwt/cmd/jwt -show -
