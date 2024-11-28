@@ -9,5 +9,5 @@ SELECT * FROM collections WHERE user_id = $1 OFFSET $2 LIMIT $3;
 -- name: GetUsersCollectionListTotal :one
 SELECT count(*) FROM collections WHERE user_id = $1;
 
--- name: GetCollectionByID :one
-SELECT * FROM collections WHERE id = $1;
+-- name: GetUserCollectionByID :one
+SELECT * FROM collections WHERE id = $1 AND user_id = $2;

@@ -48,12 +48,17 @@ func (q *Queries) CreateCollection(ctx context.Context, arg CreateCollectionPara
 	return i, err
 }
 
-const getCollectionByID = `-- name: GetCollectionByID :one
-SELECT id, user_id, title, description, type, created_at, updated_at, blueprint_id, is_blueprint FROM collections WHERE id = $1
+const getUserCollectionByID = `-- name: GetUserCollectionByID :one
+SELECT id, user_id, title, description, type, created_at, updated_at, blueprint_id, is_blueprint FROM collections WHERE id = $1 AND user_id = $2
 `
 
-func (q *Queries) GetCollectionByID(ctx context.Context, id ksuid.KSUID) (Collection, error) {
-	row := q.db.QueryRow(ctx, getCollectionByID, id)
+type GetUserCollectionByIDParams struct {
+	ID     ksuid.KSUID
+	UserID string
+}
+
+func (q *Queries) GetUserCollectionByID(ctx context.Context, arg GetUserCollectionByIDParams) (Collection, error) {
+	row := q.db.QueryRow(ctx, getUserCollectionByID, arg.ID, arg.UserID)
 	var i Collection
 	err := row.Scan(
 		&i.ID,

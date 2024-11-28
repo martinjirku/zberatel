@@ -35,11 +35,19 @@ func NewKSUID() KSUID {
 }
 
 func (k *KSUID) UnmarshalGQL(src interface{}) error {
-	b, ok := src.([]byte)
-	if !ok {
-		return fmt.Errorf("expected []byte, got %T", src)
+	var (
+		ks  ksuid.KSUID
+		err error
+	)
+	switch v := src.(type) {
+	case []byte:
+		ks, err = ksuid.FromBytes(v)
+	case string:
+		fmt.Printf("test %s", v)
+		ks, err = ksuid.Parse(v)
+	default:
+		return fmt.Errorf("expected []byte|string, got %T", src)
 	}
-	ks, err := ksuid.FromBytes(b)
 	if err != nil {
 		return err
 	}

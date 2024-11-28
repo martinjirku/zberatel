@@ -73,6 +73,21 @@ func (r *queryResolver) MyCollectionsList(ctx context.Context, input model.Colle
 	}, nil
 }
 
+// MyCollectionDetail is the resolver for the myCollectionDetail field.
+func (r *queryResolver) MyCollectionDetail(ctx context.Context, collectionID ksuid.KSUID) (*model.Collection, error) {
+	user := auth.GetUser(ctx)
+	params := db.GetUserCollectionByIDParams{
+		UserID: user.UserID,
+		ID:     collectionID,
+	}
+	collection, err := r.Queries.GetUserCollectionByID(ctx, params)
+	if err != nil {
+		return nil, fmt.Errorf("getting collection by ID %s for user %s: %s", params.ID, params.UserID, err)
+	}
+	resp := model.CollectionFromDb(collection)
+	return &resp, nil
+}
+
 // CollectionsList is the resolver for the collectionsList field.
 func (r *queryResolver) CollectionsList(ctx context.Context, input model.CollectionsListInput) (*model.CollectionsListResp, error) {
 	panic(fmt.Errorf("not implemented: CollectionsList - collectionsList"))

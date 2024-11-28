@@ -17,6 +17,10 @@ tasks:
         atlas migrate apply 
         --dir "file://migrations"
         --url "postgres://$DB_USER:$DB_PWD@$DB_ADDR:$DB_PORT/$DB_NAME?sslmode=disable"
+  db:generate:
+    desc: generate db sqlc
+    cmds:
+      - sqlc generate
   migration:generate:
     desc: run db migration
     cmds:

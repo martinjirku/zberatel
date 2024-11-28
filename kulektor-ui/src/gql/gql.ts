@@ -14,7 +14,8 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 const documents = {
-    "\n  query MyCollections($input: CollectionsListInput!) {\n    myCollectionsList(input: $input) {\n      items {\n        id\n        title\n        description\n      }\n      meta {\n        total\n        nextPage {\n          limit\n          offset\n        }\n        currentPage {\n          limit\n          offset\n        }\n      }\n    }\n  }\n": types.MyCollectionsDocument,
+    "\n  query MyCollection($input: KSUID!) {\n    myCollectionDetail(collectionID: $input) {\n      id\n      title\n      description\n      type\n      variant\n      createdAt\n    }\n  }\n": types.MyCollectionDocument,
+    "\n  query MyCollections($input: CollectionsListInput!) {\n    myCollectionsList(input: $input) {\n      items {\n        id\n        title\n        description\n      }\n      meta {\n        total\n        nextPage {\n          limit\n          offset\n        }\n        prevPage {\n          limit\n          offset\n        }\n      }\n    }\n  }\n": types.MyCollectionsDocument,
 };
 
 /**
@@ -34,7 +35,11 @@ export function graphql(source: string): unknown;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  query MyCollections($input: CollectionsListInput!) {\n    myCollectionsList(input: $input) {\n      items {\n        id\n        title\n        description\n      }\n      meta {\n        total\n        nextPage {\n          limit\n          offset\n        }\n        currentPage {\n          limit\n          offset\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query MyCollections($input: CollectionsListInput!) {\n    myCollectionsList(input: $input) {\n      items {\n        id\n        title\n        description\n      }\n      meta {\n        total\n        nextPage {\n          limit\n          offset\n        }\n        currentPage {\n          limit\n          offset\n        }\n      }\n    }\n  }\n"];
+export function graphql(source: "\n  query MyCollection($input: KSUID!) {\n    myCollectionDetail(collectionID: $input) {\n      id\n      title\n      description\n      type\n      variant\n      createdAt\n    }\n  }\n"): (typeof documents)["\n  query MyCollection($input: KSUID!) {\n    myCollectionDetail(collectionID: $input) {\n      id\n      title\n      description\n      type\n      variant\n      createdAt\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query MyCollections($input: CollectionsListInput!) {\n    myCollectionsList(input: $input) {\n      items {\n        id\n        title\n        description\n      }\n      meta {\n        total\n        nextPage {\n          limit\n          offset\n        }\n        prevPage {\n          limit\n          offset\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query MyCollections($input: CollectionsListInput!) {\n    myCollectionsList(input: $input) {\n      items {\n        id\n        title\n        description\n      }\n      meta {\n        total\n        nextPage {\n          limit\n          offset\n        }\n        prevPage {\n          limit\n          offset\n        }\n      }\n    }\n  }\n"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

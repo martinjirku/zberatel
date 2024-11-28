@@ -8,7 +8,7 @@ import {
   Menu,
   Avatar,
 } from "@material-tailwind/react";
-import { Outlet } from "react-router";
+import { Link, Outlet } from "react-router";
 import {
   HeadsetHelp,
   LogOut,
@@ -30,13 +30,14 @@ const DefaultLayout: FC<PropsWithChildren> = ({ children }) => {
       () => window.innerWidth >= 640 && setOpenNav(false),
     );
   }, []);
+
   return (
     <div className="flex h-screen flex-col">
       <Navbar className="sticky top-0 mx-auto w-full bg-black dark:bg-surface-dark p-4 border-none rounded-none">
         <div className="flex items-center text-white">
           <Typography
-            as="a"
-            href="#"
+            as={Link}
+            to="/"
             type="small"
             className="ml-2 mr-2 block py-1 font-semibold"
           >
@@ -101,27 +102,22 @@ const DefaultLayout: FC<PropsWithChildren> = ({ children }) => {
         </Collapse>
       </Navbar>
 
-      {/* Main Layout */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Left Sidebar */}
-        <aside className="bg-gray-100 w-64 p-4 overflow-y-auto">
-          <nav className="space-y-4">
-            <a href="#" className="block text-blue-500 font-semibold">
-              Dashboard
-            </a>
-            <a href="#" className="block text-gray-700">
-              Profile
-            </a>
-            <a href="#" className="block text-gray-700">
-              Settings
-            </a>
-            <a href="#" className="block text-gray-700">
-              Help
-            </a>
-          </nav>
-        </aside>
-
-        {/* Main Content */}
+        {isAuthenticated ? (
+          <aside className="bg-gray-100 w-64 p-4 overflow-y-auto">
+            <nav className="space-y-4">
+              <Link to="/my/dashboard" className="block">
+                Dashboard
+              </Link>
+              <Link
+                to="/my/profile"
+                className="block text-blue-500 font-semibold"
+              >
+                My Profile
+              </Link>
+            </nav>
+          </aside>
+        ) : null}
         {children}
         <Outlet />
       </div>
@@ -153,7 +149,6 @@ const NavList = () => {
             className="flex items-center gap-x-2 p-1 text-white hover:text-white"
           >
             <Icon className="h-4 w-4" />
-
             {title}
           </Typography>
         </li>

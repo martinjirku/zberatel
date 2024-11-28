@@ -2,36 +2,60 @@ import { lazy, Suspense } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router";
 
 const Home = lazy(() => import("./Home.tsx"));
-const AuthLayout = lazy(() => import("./layouts/auth-layout.tsx"));
+// const AuthLayout = lazy(() => import("./layouts/auth-layout.tsx"));
+const DefaultLayout = lazy(() => import("./layouts/default-layout.tsx"));
+const MyUser = lazy(() => import("./pages/my-profile.tsx"));
+const MyDashboard = lazy(() => import("./pages/my-dashboard.tsx"));
+const MyCollectionDetail = lazy(
+  () => import("./pages/my-collection-detail.tsx"),
+);
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: (
       <Suspense fallback="Loading Home...">
-        <Home />
+        <DefaultLayout>
+          <Home />
+        </DefaultLayout>
       </Suspense>
     ),
     index: true, // Marks this route as the index route
   },
   {
-    path: "/",
+    path: "/my",
     element: (
       <Suspense fallback={<div>Loading...</div>}>
-        <AuthLayout />
+        <DefaultLayout />
       </Suspense>
     ),
-    shouldRevalidate: () => false,
     children: [
       {
-        path: "login",
-        id: "login",
-        element: <div>Login</div>,
+        path: "profile",
+        id: "my-profile",
+        element: (
+          <Suspense fallback={<div>loading User...</div>}>
+            <MyUser />
+          </Suspense>
+        ),
       },
       {
-        path: "register",
-        id: "register",
-        element: <div>Register</div>,
+        path: "dashboard",
+        id: "my-dashboard",
+        element: (
+          <Suspense fallback="loading User">
+            <MyDashboard />
+          </Suspense>
+        ),
+      },
+      {
+        path: "collection/:id",
+        id: "my-collection/detail",
+        element: (
+          <Suspense fallback="loading User">
+            <MyCollectionDetail />
+          </Suspense>
+        ),
       },
     ],
   },
