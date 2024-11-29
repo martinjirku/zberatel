@@ -5,17 +5,9 @@ BEGIN
         FROM pg_type
         WHERE typname = 'ksuid'
     ) THEN
-        CREATE DOMAIN ksuid AS BYTEA;
+        CREATE DOMAIN ksuid AS CHAR(27);
     END IF;
 END $$;
-
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-   NEW.updated_at = now();
-   RETURN NEW;
-END;
-$$ language 'plpgsql';
 
 CREATE TABLE users (
     id          VARCHAR(512) PRIMARY KEY,
@@ -24,9 +16,6 @@ CREATE TABLE users (
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
-CREATE OR REPLACE TRIGGER update_user_updated_at BEFORE UPDATE ON users
-FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 
 CREATE TABLE collections (
     id              ksuid PRIMARY KEY,
@@ -42,6 +31,3 @@ CREATE TABLE collections (
     FOREIGN KEY (blueprint_id) REFERENCES collections(id),
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
-
-CREATE OR REPLACE TRIGGER update_collection_updated_at BEFORE UPDATE ON collections
-FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();

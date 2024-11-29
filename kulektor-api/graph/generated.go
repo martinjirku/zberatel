@@ -79,7 +79,8 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateCollection func(childComplexity int, input model.CreateCollectionInput) int
+		CreateMyCollection func(childComplexity int, input model.CollectionInput) int
+		UpdateMyCollection func(childComplexity int, input model.UpdateCollectionInput) int
 	}
 
 	Paging struct {
@@ -93,6 +94,11 @@ type ComplexityRoot struct {
 		MyCollectionsList  func(childComplexity int, input model.CollectionsListInput) int
 	}
 
+	UpdateCollectionResp struct {
+		Data    func(childComplexity int) int
+		Success func(childComplexity int) int
+	}
+
 	User struct {
 		Email func(childComplexity int) int
 		Role  func(childComplexity int) int
@@ -101,7 +107,8 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreateCollection(ctx context.Context, input model.CreateCollectionInput) (*model.CreateCollectionResp, error)
+	CreateMyCollection(ctx context.Context, input model.CollectionInput) (*model.CreateCollectionResp, error)
+	UpdateMyCollection(ctx context.Context, input model.UpdateCollectionInput) (*model.UpdateCollectionResp, error)
 }
 type QueryResolver interface {
 	MyCollectionsList(ctx context.Context, input model.CollectionsListInput) (*model.CollectionsListResp, error)
@@ -226,17 +233,29 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Meta.Total(childComplexity), true
 
-	case "Mutation.createCollection":
-		if e.complexity.Mutation.CreateCollection == nil {
+	case "Mutation.createMyCollection":
+		if e.complexity.Mutation.CreateMyCollection == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_createCollection_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createMyCollection_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateCollection(childComplexity, args["input"].(model.CreateCollectionInput)), true
+		return e.complexity.Mutation.CreateMyCollection(childComplexity, args["input"].(model.CollectionInput)), true
+
+	case "Mutation.updateMyCollection":
+		if e.complexity.Mutation.UpdateMyCollection == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateMyCollection_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateMyCollection(childComplexity, args["input"].(model.UpdateCollectionInput)), true
 
 	case "Paging.limit":
 		if e.complexity.Paging.Limit == nil {
@@ -288,6 +307,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.MyCollectionsList(childComplexity, args["input"].(model.CollectionsListInput)), true
 
+	case "UpdateCollectionResp.data":
+		if e.complexity.UpdateCollectionResp.Data == nil {
+			break
+		}
+
+		return e.complexity.UpdateCollectionResp.Data(childComplexity), true
+
+	case "UpdateCollectionResp.success":
+		if e.complexity.UpdateCollectionResp.Success == nil {
+			break
+		}
+
+		return e.complexity.UpdateCollectionResp.Success(childComplexity), true
+
 	case "User.email":
 		if e.complexity.User.Email == nil {
 			break
@@ -317,9 +350,10 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputCollectionInput,
 		ec.unmarshalInputCollectionsListInput,
-		ec.unmarshalInputCreateCollectionInput,
 		ec.unmarshalInputPagingInput,
+		ec.unmarshalInputUpdateCollectionInput,
 	)
 	first := true
 
@@ -469,26 +503,49 @@ func (ec *executionContext) dir_hasRole_argsRole(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_createCollection_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createMyCollection_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_createCollection_argsInput(ctx, rawArgs)
+	arg0, err := ec.field_Mutation_createMyCollection_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
 	args["input"] = arg0
 	return args, nil
 }
-func (ec *executionContext) field_Mutation_createCollection_argsInput(
+func (ec *executionContext) field_Mutation_createMyCollection_argsInput(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (model.CreateCollectionInput, error) {
+) (model.CollectionInput, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNCreateCollectionInput2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCreateCollectionInput(ctx, tmp)
+		return ec.unmarshalNCollectionInput2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollectionInput(ctx, tmp)
 	}
 
-	var zeroVal model.CreateCollectionInput
+	var zeroVal model.CollectionInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateMyCollection_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_updateMyCollection_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_updateMyCollection_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.UpdateCollectionInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateCollectionInput2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐUpdateCollectionInput(ctx, tmp)
+	}
+
+	var zeroVal model.UpdateCollectionInput
 	return zeroVal, nil
 }
 
@@ -1295,8 +1352,8 @@ func (ec *executionContext) fieldContext_Meta_nextPage(_ context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createCollection(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createCollection(ctx, field)
+func (ec *executionContext) _Mutation_createMyCollection(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createMyCollection(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1310,7 +1367,7 @@ func (ec *executionContext) _Mutation_createCollection(ctx context.Context, fiel
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().CreateCollection(rctx, fc.Args["input"].(model.CreateCollectionInput))
+			return ec.resolvers.Mutation().CreateMyCollection(rctx, fc.Args["input"].(model.CollectionInput))
 		}
 
 		directive1 := func(ctx context.Context) (interface{}, error) {
@@ -1353,7 +1410,7 @@ func (ec *executionContext) _Mutation_createCollection(ctx context.Context, fiel
 	return ec.marshalNCreateCollectionResp2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCreateCollectionResp(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_createCollection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_createMyCollection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -1376,7 +1433,68 @@ func (ec *executionContext) fieldContext_Mutation_createCollection(ctx context.C
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createCollection_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_createMyCollection_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateMyCollection(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateMyCollection(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateMyCollection(rctx, fc.Args["input"].(model.UpdateCollectionInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.UpdateCollectionResp)
+	fc.Result = res
+	return ec.marshalNUpdateCollectionResp2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐUpdateCollectionResp(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateMyCollection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_UpdateCollectionResp_success(ctx, field)
+			case "data":
+				return ec.fieldContext_UpdateCollectionResp_data(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UpdateCollectionResp", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateMyCollection_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -1861,6 +1979,105 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UpdateCollectionResp_success(ctx context.Context, field graphql.CollectedField, obj *model.UpdateCollectionResp) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UpdateCollectionResp_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UpdateCollectionResp_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateCollectionResp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UpdateCollectionResp_data(ctx context.Context, field graphql.CollectedField, obj *model.UpdateCollectionResp) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UpdateCollectionResp_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Collection)
+	fc.Result = res
+	return ec.marshalOCollection2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UpdateCollectionResp_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateCollectionResp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Collection_id(ctx, field)
+			case "title":
+				return ec.fieldContext_Collection_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Collection_description(ctx, field)
+			case "type":
+				return ec.fieldContext_Collection_type(ctx, field)
+			case "variant":
+				return ec.fieldContext_Collection_variant(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Collection_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Collection", field.Name)
 		},
 	}
 	return fc, nil
@@ -3771,41 +3988,14 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputCollectionsListInput(ctx context.Context, obj interface{}) (model.CollectionsListInput, error) {
-	var it model.CollectionsListInput
+func (ec *executionContext) unmarshalInputCollectionInput(ctx context.Context, obj interface{}) (model.CollectionInput, error) {
+	var it model.CollectionInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"paging"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "paging":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("paging"))
-			data, err := ec.unmarshalNPagingInput2ᚖjirkuᚗskᚋkulektorᚋgridᚐPaging(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Paging = data
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputCreateCollectionInput(ctx context.Context, obj interface{}) (model.CreateCollectionInput, error) {
-	var it model.CreateCollectionInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"title", "description", "type"}
+	fieldsInOrder := [...]string{"title", "description", "type", "variant"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -3833,6 +4023,40 @@ func (ec *executionContext) unmarshalInputCreateCollectionInput(ctx context.Cont
 				return it, err
 			}
 			it.Type = data
+		case "variant":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("variant"))
+			data, err := ec.unmarshalNCollectionVariant2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollectionVariant(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Variant = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputCollectionsListInput(ctx context.Context, obj interface{}) (model.CollectionsListInput, error) {
+	var it model.CollectionsListInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"paging"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "paging":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("paging"))
+			data, err := ec.unmarshalNPagingInput2ᚖjirkuᚗskᚋkulektorᚋgridᚐPaging(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Paging = data
 		}
 	}
 
@@ -3867,6 +4091,47 @@ func (ec *executionContext) unmarshalInputPagingInput(ctx context.Context, obj i
 				return it, err
 			}
 			it.Offset = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateCollectionInput(ctx context.Context, obj interface{}) (model.UpdateCollectionInput, error) {
+	var it model.UpdateCollectionInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "collection", "fieldsToUpdate"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNKSUID2jirkuᚗskᚋkulektorᚋksuidᚐKSUID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "collection":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("collection"))
+			data, err := ec.unmarshalNCollectionInput2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollectionInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Collection = data
+		case "fieldsToUpdate":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fieldsToUpdate"))
+			data, err := ec.unmarshalNCollectionField2ᚕjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollectionFieldᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FieldsToUpdate = data
 		}
 	}
 
@@ -4091,9 +4356,16 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "createCollection":
+		case "createMyCollection":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createCollection(ctx, field)
+				return ec._Mutation_createMyCollection(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateMyCollection":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateMyCollection(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -4252,6 +4524,47 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var updateCollectionRespImplementors = []string{"UpdateCollectionResp"}
+
+func (ec *executionContext) _UpdateCollectionResp(ctx context.Context, sel ast.SelectionSet, obj *model.UpdateCollectionResp) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, updateCollectionRespImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UpdateCollectionResp")
+		case "success":
+			out.Values[i] = ec._UpdateCollectionResp_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "data":
+			out.Values[i] = ec._UpdateCollectionResp_data(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4723,6 +5036,87 @@ func (ec *executionContext) marshalNCollection2ᚖjirkuᚗskᚋkulektorᚋgraph�
 	return ec._Collection(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNCollectionField2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollectionField(ctx context.Context, v interface{}) (model.CollectionField, error) {
+	var res model.CollectionField
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCollectionField2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollectionField(ctx context.Context, sel ast.SelectionSet, v model.CollectionField) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNCollectionField2ᚕjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollectionFieldᚄ(ctx context.Context, v interface{}) ([]model.CollectionField, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]model.CollectionField, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNCollectionField2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollectionField(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNCollectionField2ᚕjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollectionFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []model.CollectionField) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNCollectionField2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollectionField(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNCollectionInput2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollectionInput(ctx context.Context, v interface{}) (model.CollectionInput, error) {
+	res, err := ec.unmarshalInputCollectionInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNCollectionInput2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollectionInput(ctx context.Context, v interface{}) (*model.CollectionInput, error) {
+	res, err := ec.unmarshalInputCollectionInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNCollectionVariant2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollectionVariant(ctx context.Context, v interface{}) (model.CollectionVariant, error) {
 	var res model.CollectionVariant
 	err := res.UnmarshalGQL(v)
@@ -4750,11 +5144,6 @@ func (ec *executionContext) marshalNCollectionsListResp2ᚖjirkuᚗskᚋkulektor
 		return graphql.Null
 	}
 	return ec._CollectionsListResp(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNCreateCollectionInput2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCreateCollectionInput(ctx context.Context, v interface{}) (model.CreateCollectionInput, error) {
-	res, err := ec.unmarshalInputCreateCollectionInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNCreateCollectionResp2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCreateCollectionResp(ctx context.Context, sel ast.SelectionSet, v model.CreateCollectionResp) graphql.Marshaler {
@@ -4859,6 +5248,25 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNUpdateCollectionInput2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐUpdateCollectionInput(ctx context.Context, v interface{}) (model.UpdateCollectionInput, error) {
+	res, err := ec.unmarshalInputUpdateCollectionInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpdateCollectionResp2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐUpdateCollectionResp(ctx context.Context, sel ast.SelectionSet, v model.UpdateCollectionResp) graphql.Marshaler {
+	return ec._UpdateCollectionResp(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUpdateCollectionResp2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐUpdateCollectionResp(ctx context.Context, sel ast.SelectionSet, v *model.UpdateCollectionResp) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UpdateCollectionResp(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

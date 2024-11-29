@@ -18,11 +18,11 @@ RETURNING id, user_id, title, description, type, created_at, updated_at, bluepri
 `
 
 type CreateCollectionParams struct {
-	ID          ksuid.KSUID
-	UserID      string
-	Title       string
-	Description *string
-	Type        *string
+	ID          ksuid.KSUID `db:"id" json:"id"`
+	UserID      string      `db:"user_id" json:"userId"`
+	Title       string      `db:"title" json:"title"`
+	Description *string     `db:"description" json:"description"`
+	Type        *string     `db:"type" json:"type"`
 }
 
 func (q *Queries) CreateCollection(ctx context.Context, arg CreateCollectionParams) (Collection, error) {
@@ -53,8 +53,8 @@ SELECT id, user_id, title, description, type, created_at, updated_at, blueprint_
 `
 
 type GetUserCollectionByIDParams struct {
-	ID     ksuid.KSUID
-	UserID string
+	ID     ksuid.KSUID `db:"id" json:"id"`
+	UserID string      `db:"user_id" json:"userId"`
 }
 
 func (q *Queries) GetUserCollectionByID(ctx context.Context, arg GetUserCollectionByIDParams) (Collection, error) {
@@ -90,9 +90,9 @@ SELECT id, user_id, title, description, type, created_at, updated_at, blueprint_
 `
 
 type GetUsersCollectionsListParams struct {
-	UserID string
-	Offset int32
-	Limit  int32
+	UserID string `db:"user_id" json:"userId"`
+	Offset int32  `db:"offset" json:"offset"`
+	Limit  int32  `db:"limit" json:"limit"`
 }
 
 func (q *Queries) GetUsersCollectionsList(ctx context.Context, arg GetUsersCollectionsListParams) ([]Collection, error) {

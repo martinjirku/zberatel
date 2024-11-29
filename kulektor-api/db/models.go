@@ -10,21 +10,21 @@ import (
 )
 
 type Collection struct {
-	ID          ksuid.KSUID
-	UserID      string
-	Title       string
-	Description *string
-	Type        *string
-	CreatedAt   pgtype.Timestamp
-	UpdatedAt   pgtype.Timestamp
-	BlueprintID interface{}
-	IsBlueprint bool
+	ID          ksuid.KSUID      `db:"id" json:"id"`
+	UserID      string           `db:"user_id" json:"userId"`
+	Title       string           `db:"title" json:"title"`
+	Description *string          `db:"description" json:"description"`
+	Type        *string          `db:"type" json:"type"`
+	CreatedAt   pgtype.Timestamp `db:"created_at" json:"createdAt"`
+	UpdatedAt   pgtype.Timestamp `db:"updated_at" json:"updatedAt"`
+	BlueprintID interface{}      `db:"blueprint_id" json:"blueprintId"`
+	IsBlueprint bool             `db:"is_blueprint" json:"isBlueprint"`
 }
 
 type User struct {
-	ID        string
-	Username  string
-	Email     string
-	CreatedAt pgtype.Timestamp
-	UpdatedAt pgtype.Timestamp
+	ID        string           `db:"id" json:"id"`
+	Username  string           `db:"username" json:"username"`
+	Email     string           `db:"email" json:"email"`
+	CreatedAt pgtype.Timestamp `db:"created_at" json:"createdAt"`
+	UpdatedAt pgtype.Timestamp `db:"updated_at" json:"updatedAt"`
 }

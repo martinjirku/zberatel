@@ -12,11 +12,16 @@ type KSUID ksuid.KSUID
 
 // Scan implements the sql.Scanner interface.
 func (k *KSUID) Scan(src interface{}) error {
-	b, ok := src.([]byte)
-	if !ok {
-		return fmt.Errorf("expected []byte, got %T", src)
+	var b string
+	switch s := src.(type) {
+	case []byte:
+		b = string(s)
+	case string:
+		b = s
+	default:
+		return fmt.Errorf("not a string or []byte: %#T", s)
 	}
-	ks, err := ksuid.FromBytes(b)
+	ks, err := ksuid.Parse(b)
 	if err != nil {
 		return err
 	}
@@ -26,7 +31,7 @@ func (k *KSUID) Scan(src interface{}) error {
 
 // Value implements the driver.Valuer interface.
 func (k KSUID) Value() (driver.Value, error) {
-	return ksuid.KSUID(k).Bytes(), nil
+	return ksuid.KSUID(k).String(), nil
 }
 
 func NewKSUID() KSUID {

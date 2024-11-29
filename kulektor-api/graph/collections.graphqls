@@ -7,8 +7,9 @@ type Query {
     @hasRole(role: ADMIN)
 }
 type Mutation {
-  createCollection(input: CreateCollectionInput!): CreateCollectionResp!
+  createMyCollection(input: CollectionInput!): CreateCollectionResp!
     @hasRole(role: COLLECTOR)
+  updateMyCollection(input: UpdateCollectionInput!): UpdateCollectionResp!
 }
 
 # INPUTS
@@ -17,10 +18,17 @@ input CollectionsListInput {
   paging: PagingInput!
 }
 
-input CreateCollectionInput {
+input CollectionInput {
   title: String!
   description: String
   type: String
+  variant: CollectionVariant!
+}
+
+input UpdateCollectionInput {
+  id: KSUID!
+  collection: CollectionInput!
+  fieldsToUpdate: [CollectionField!]!
 }
 
 # ENUMS
@@ -28,6 +36,13 @@ input CreateCollectionInput {
 enum CollectionVariant {
   NORMAL
   BLUEPRINT
+}
+
+enum CollectionField {
+  title
+  description
+  type
+  variant
 }
 
 # TYPES
@@ -56,6 +71,11 @@ type CollectionsListResp {
 }
 
 type CreateCollectionResp {
+  success: Boolean!
+  data: Collection
+}
+
+type UpdateCollectionResp {
   success: Boolean!
   data: Collection
 }

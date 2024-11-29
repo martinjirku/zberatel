@@ -22,6 +22,13 @@ type Collection struct {
 	CreatedAt   time.Time         `json:"createdAt"`
 }
 
+type CollectionInput struct {
+	Title       string            `json:"title"`
+	Description *string           `json:"description,omitempty"`
+	Type        *string           `json:"type,omitempty"`
+	Variant     CollectionVariant `json:"variant"`
+}
+
 type CollectionsListInput struct {
 	Paging *grid.Paging `json:"paging"`
 }
@@ -29,12 +36,6 @@ type CollectionsListInput struct {
 type CollectionsListResp struct {
 	Items []Collection `json:"items"`
 	Meta  *Meta        `json:"meta"`
-}
-
-type CreateCollectionInput struct {
-	Title       string  `json:"title"`
-	Description *string `json:"description,omitempty"`
-	Type        *string `json:"type,omitempty"`
 }
 
 type CreateCollectionResp struct {
@@ -55,10 +56,66 @@ type Mutation struct {
 type Query struct {
 }
 
+type UpdateCollectionInput struct {
+	ID             ksuid.KSUID       `json:"id"`
+	Collection     *CollectionInput  `json:"collection"`
+	FieldsToUpdate []CollectionField `json:"fieldsToUpdate"`
+}
+
+type UpdateCollectionResp struct {
+	Success bool        `json:"success"`
+	Data    *Collection `json:"data,omitempty"`
+}
+
 type User struct {
 	UID   string    `json:"uid"`
 	Email string    `json:"email"`
 	Role  auth.Role `json:"role"`
+}
+
+type CollectionField string
+
+const (
+	CollectionFieldTitle       CollectionField = "title"
+	CollectionFieldDescription CollectionField = "description"
+	CollectionFieldType        CollectionField = "type"
+	CollectionFieldVariant     CollectionField = "variant"
+)
+
+var AllCollectionField = []CollectionField{
+	CollectionFieldTitle,
+	CollectionFieldDescription,
+	CollectionFieldType,
+	CollectionFieldVariant,
+}
+
+func (e CollectionField) IsValid() bool {
+	switch e {
+	case CollectionFieldTitle, CollectionFieldDescription, CollectionFieldType, CollectionFieldVariant:
+		return true
+	}
+	return false
+}
+
+func (e CollectionField) String() string {
+	return string(e)
+}
+
+func (e *CollectionField) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CollectionField(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CollectionField", str)
+	}
+	return nil
+}
+
+func (e CollectionField) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type CollectionVariant string

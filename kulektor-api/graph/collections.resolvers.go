@@ -14,8 +14,8 @@ import (
 	"jirku.sk/kulektor/ksuid"
 )
 
-// CreateCollection is the resolver for the createCollection field.
-func (r *mutationResolver) CreateCollection(ctx context.Context, input model.CreateCollectionInput) (*model.CreateCollectionResp, error) {
+// CreateMyCollection is the resolver for the createMyCollection field.
+func (r *mutationResolver) CreateMyCollection(ctx context.Context, input model.CollectionInput) (*model.CreateCollectionResp, error) {
 	user := auth.GetUser(ctx)
 	collection := db.CreateCollectionParams{
 		ID:          ksuid.NewKSUID(),
@@ -26,13 +26,35 @@ func (r *mutationResolver) CreateCollection(ctx context.Context, input model.Cre
 	}
 
 	output, err := r.Queries.CreateCollection(ctx, collection)
+	fmt.Printf("Create: %#T: %+v\n", collection, collection)
 	if err != nil {
-		return &model.CreateCollectionResp{
-			Success: false,
-		}, fmt.Errorf("creating collection: %s", err)
+		return &model.CreateCollectionResp{}, fmt.Errorf("creating collection: %s", err)
 	}
 	c := model.CollectionFromDb(output)
 	return &model.CreateCollectionResp{
+		Success: true,
+		Data:    &c,
+	}, nil
+}
+
+// UpdateMyCollection is the resolver for the updateMyCollection field.
+func (r *mutationResolver) UpdateMyCollection(ctx context.Context, input model.UpdateCollectionInput) (*model.UpdateCollectionResp, error) {
+	user := auth.GetUser(ctx)
+	fields := make([]string, 0, len(input.FieldsToUpdate))
+	for _, f := range input.FieldsToUpdate {
+		fields = append(fields, string(f))
+	}
+	output, err := r.Queries.UpdateMyCollection(ctx, db.Collection{
+		ID:          input.ID,
+		UserID:      user.UserID,
+		Title:       input.Collection.Title,
+		Description: input.Collection.Description,
+	}, fields)
+	if err != nil {
+		return &model.UpdateCollectionResp{}, fmt.Errorf("creating collection: %s", err)
+	}
+	c := model.CollectionFromDb(output)
+	return &model.UpdateCollectionResp{
 		Success: true,
 		Data:    &c,
 	}, nil

@@ -9,6 +9,10 @@ sql:
         out: "db"
         sql_package: "pgx/v5"
         emit_pointers_for_null_types: true
+        emit_db_tags: true
+        emit_json_tags: true
+        emit_prepared_queries: true
+        json_tags_case_style: camel
         overrides:
           - db_type: "ksuid"
             go_type: "jirku.sk/kulektor/ksuid.KSUID"
