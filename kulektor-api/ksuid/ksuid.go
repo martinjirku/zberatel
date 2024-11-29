@@ -48,7 +48,6 @@ func (k *KSUID) UnmarshalGQL(src interface{}) error {
 	case []byte:
 		ks, err = ksuid.FromBytes(v)
 	case string:
-		fmt.Printf("test %s", v)
 		ks, err = ksuid.Parse(v)
 	default:
 		return fmt.Errorf("expected []byte|string, got %T", src)

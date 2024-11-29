@@ -38,8 +38,12 @@ func GetDbColumnByJsonField(input interface{}, jsonTag string) (string, any, err
 			if dbTag == "" {
 				return "", nil, fmt.Errorf("db tag not found for field with json tag '%s'", jsonTag)
 			}
-			v := reflect.ValueOf(input)
-			return dbTag, v.Field(i).Interface(), nil
+			field := reflect.ValueOf(input).Field(i)
+			if field.Kind() == reflect.Ptr {
+				field = field.Elem()
+			}
+			var fieldValue = field.Interface()
+			return dbTag, fieldValue, nil
 		}
 	}
 

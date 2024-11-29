@@ -26,7 +26,6 @@ func (r *mutationResolver) CreateMyCollection(ctx context.Context, input model.C
 	}
 
 	output, err := r.Queries.CreateCollection(ctx, collection)
-	fmt.Printf("Create: %#T: %+v\n", collection, collection)
 	if err != nil {
 		return &model.CreateCollectionResp{}, fmt.Errorf("creating collection: %s", err)
 	}
