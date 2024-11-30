@@ -59,6 +59,20 @@ func (r *mutationResolver) UpdateMyCollection(ctx context.Context, input model.U
 	}, nil
 }
 
+// DeleteMyCollection is the resolver for the deleteMyCollection field.
+func (r *mutationResolver) DeleteMyCollection(ctx context.Context, collectionID ksuid.KSUID) (*model.DeleteMyCollectionResp, error) {
+	user := auth.GetUser(ctx)
+	err := r.Queries.DeleteUserCollectionByID(ctx, db.DeleteUserCollectionByIDParams{ID: collectionID, UserID: user.UserID})
+	if err != nil {
+		return &model.DeleteMyCollectionResp{
+			Success: false,
+		}, fmt.Errorf("deleting my collection: %s", err)
+	}
+	return &model.DeleteMyCollectionResp{
+		Success: true,
+	}, nil
+}
+
 // MyCollectionsList is the resolver for the myCollectionsList field.
 func (r *queryResolver) MyCollectionsList(ctx context.Context, input model.CollectionsListInput) (*model.CollectionsListResp, error) {
 	user := auth.GetUser(ctx)

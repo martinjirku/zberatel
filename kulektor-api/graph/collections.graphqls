@@ -10,6 +10,7 @@ type Mutation {
   createMyCollection(input: CollectionInput!): CreateCollectionResp!
     @hasRole(role: COLLECTOR)
   updateMyCollection(input: UpdateCollectionInput!): UpdateCollectionResp!
+  deleteMyCollection(collectionId: KSUID!): DeleteMyCollectionResp!
 }
 
 # INPUTS
@@ -22,7 +23,7 @@ input CollectionInput {
   title: String!
   description: String
   type: String
-  variant: CollectionVariant!
+  variant: CollectionVariant
 }
 
 input UpdateCollectionInput {
@@ -54,6 +55,7 @@ type Collection {
   type: String
   variant: CollectionVariant!
   createdAt: Date!
+  updatedAt: Date!
 }
 
 type Meta {
@@ -78,4 +80,8 @@ type CreateCollectionResp {
 type UpdateCollectionResp {
   success: Boolean!
   data: Collection
+}
+
+type DeleteMyCollectionResp {
+  success: Boolean!
 }

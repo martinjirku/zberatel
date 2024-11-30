@@ -48,6 +48,20 @@ func (q *Queries) CreateCollection(ctx context.Context, arg CreateCollectionPara
 	return i, err
 }
 
+const deleteUserCollectionByID = `-- name: DeleteUserCollectionByID :exec
+DELETE FROM collections where id = $1 AND user_id = $2
+`
+
+type DeleteUserCollectionByIDParams struct {
+	ID     ksuid.KSUID `db:"id" json:"id"`
+	UserID string      `db:"user_id" json:"userId"`
+}
+
+func (q *Queries) DeleteUserCollectionByID(ctx context.Context, arg DeleteUserCollectionByIDParams) error {
+	_, err := q.db.Exec(ctx, deleteUserCollectionByID, arg.ID, arg.UserID)
+	return err
+}
+
 const getUserCollectionByID = `-- name: GetUserCollectionByID :one
 SELECT id, user_id, title, description, type, created_at, updated_at, blueprint_id, is_blueprint FROM collections WHERE id = $1 AND user_id = $2
 `

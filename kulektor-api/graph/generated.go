@@ -58,6 +58,7 @@ type ComplexityRoot struct {
 		ID          func(childComplexity int) int
 		Title       func(childComplexity int) int
 		Type        func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
 		Variant     func(childComplexity int) int
 	}
 
@@ -71,6 +72,10 @@ type ComplexityRoot struct {
 		Success func(childComplexity int) int
 	}
 
+	DeleteMyCollectionResp struct {
+		Success func(childComplexity int) int
+	}
+
 	Meta struct {
 		CurrentPage func(childComplexity int) int
 		NextPage    func(childComplexity int) int
@@ -80,6 +85,7 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		CreateMyCollection func(childComplexity int, input model.CollectionInput) int
+		DeleteMyCollection func(childComplexity int, collectionID ksuid.KSUID) int
 		UpdateMyCollection func(childComplexity int, input model.UpdateCollectionInput) int
 	}
 
@@ -109,6 +115,7 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	CreateMyCollection(ctx context.Context, input model.CollectionInput) (*model.CreateCollectionResp, error)
 	UpdateMyCollection(ctx context.Context, input model.UpdateCollectionInput) (*model.UpdateCollectionResp, error)
+	DeleteMyCollection(ctx context.Context, collectionID ksuid.KSUID) (*model.DeleteMyCollectionResp, error)
 }
 type QueryResolver interface {
 	MyCollectionsList(ctx context.Context, input model.CollectionsListInput) (*model.CollectionsListResp, error)
@@ -170,6 +177,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Collection.Type(childComplexity), true
 
+	case "Collection.updatedAt":
+		if e.complexity.Collection.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Collection.UpdatedAt(childComplexity), true
+
 	case "Collection.variant":
 		if e.complexity.Collection.Variant == nil {
 			break
@@ -204,6 +218,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CreateCollectionResp.Success(childComplexity), true
+
+	case "DeleteMyCollectionResp.success":
+		if e.complexity.DeleteMyCollectionResp.Success == nil {
+			break
+		}
+
+		return e.complexity.DeleteMyCollectionResp.Success(childComplexity), true
 
 	case "Meta.currentPage":
 		if e.complexity.Meta.CurrentPage == nil {
@@ -244,6 +265,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateMyCollection(childComplexity, args["input"].(model.CollectionInput)), true
+
+	case "Mutation.deleteMyCollection":
+		if e.complexity.Mutation.DeleteMyCollection == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteMyCollection_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteMyCollection(childComplexity, args["collectionId"].(ksuid.KSUID)), true
 
 	case "Mutation.updateMyCollection":
 		if e.complexity.Mutation.UpdateMyCollection == nil {
@@ -523,6 +556,29 @@ func (ec *executionContext) field_Mutation_createMyCollection_argsInput(
 	}
 
 	var zeroVal model.CollectionInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteMyCollection_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_deleteMyCollection_argsCollectionID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["collectionId"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_deleteMyCollection_argsCollectionID(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (ksuid.KSUID, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("collectionId"))
+	if tmp, ok := rawArgs["collectionId"]; ok {
+		return ec.unmarshalNKSUID2jirkuᚗskᚋkulektorᚋksuidᚐKSUID(ctx, tmp)
+	}
+
+	var zeroVal ksuid.KSUID
 	return zeroVal, nil
 }
 
@@ -953,6 +1009,50 @@ func (ec *executionContext) fieldContext_Collection_createdAt(_ context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _Collection_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.Collection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Collection_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNDate2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Collection_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Collection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Date does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _CollectionsListResp_items(ctx context.Context, field graphql.CollectedField, obj *model.CollectionsListResp) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CollectionsListResp_items(ctx, field)
 	if err != nil {
@@ -1004,6 +1104,8 @@ func (ec *executionContext) fieldContext_CollectionsListResp_items(_ context.Con
 				return ec.fieldContext_Collection_variant(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Collection_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Collection_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Collection", field.Name)
 		},
@@ -1157,8 +1259,54 @@ func (ec *executionContext) fieldContext_CreateCollectionResp_data(_ context.Con
 				return ec.fieldContext_Collection_variant(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Collection_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Collection_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Collection", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DeleteMyCollectionResp_success(ctx context.Context, field graphql.CollectedField, obj *model.DeleteMyCollectionResp) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeleteMyCollectionResp_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeleteMyCollectionResp_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeleteMyCollectionResp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1501,6 +1649,65 @@ func (ec *executionContext) fieldContext_Mutation_updateMyCollection(ctx context
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_deleteMyCollection(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteMyCollection(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteMyCollection(rctx, fc.Args["collectionId"].(ksuid.KSUID))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.DeleteMyCollectionResp)
+	fc.Result = res
+	return ec.marshalNDeleteMyCollectionResp2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐDeleteMyCollectionResp(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteMyCollection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_DeleteMyCollectionResp_success(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeleteMyCollectionResp", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteMyCollection_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Paging_limit(ctx context.Context, field graphql.CollectedField, obj *grid.Paging) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Paging_limit(ctx, field)
 	if err != nil {
@@ -1749,6 +1956,8 @@ func (ec *executionContext) fieldContext_Query_myCollectionDetail(ctx context.Co
 				return ec.fieldContext_Collection_variant(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Collection_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Collection_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Collection", field.Name)
 		},
@@ -2076,6 +2285,8 @@ func (ec *executionContext) fieldContext_UpdateCollectionResp_data(_ context.Con
 				return ec.fieldContext_Collection_variant(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Collection_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Collection_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Collection", field.Name)
 		},
@@ -4025,7 +4236,7 @@ func (ec *executionContext) unmarshalInputCollectionInput(ctx context.Context, o
 			it.Type = data
 		case "variant":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("variant"))
-			data, err := ec.unmarshalNCollectionVariant2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollectionVariant(ctx, v)
+			data, err := ec.unmarshalOCollectionVariant2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollectionVariant(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4181,6 +4392,11 @@ func (ec *executionContext) _Collection(ctx context.Context, sel ast.SelectionSe
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "updatedAt":
+			out.Values[i] = ec._Collection_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4289,6 +4505,45 @@ func (ec *executionContext) _CreateCollectionResp(ctx context.Context, sel ast.S
 	return out
 }
 
+var deleteMyCollectionRespImplementors = []string{"DeleteMyCollectionResp"}
+
+func (ec *executionContext) _DeleteMyCollectionResp(ctx context.Context, sel ast.SelectionSet, obj *model.DeleteMyCollectionResp) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deleteMyCollectionRespImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeleteMyCollectionResp")
+		case "success":
+			out.Values[i] = ec._DeleteMyCollectionResp_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var metaImplementors = []string{"Meta"}
 
 func (ec *executionContext) _Meta(ctx context.Context, sel ast.SelectionSet, obj *model.Meta) graphql.Marshaler {
@@ -4366,6 +4621,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "updateMyCollection":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_updateMyCollection(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deleteMyCollection":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteMyCollection(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -5175,6 +5437,20 @@ func (ec *executionContext) marshalNDate2timeᚐTime(ctx context.Context, sel as
 	return res
 }
 
+func (ec *executionContext) marshalNDeleteMyCollectionResp2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐDeleteMyCollectionResp(ctx context.Context, sel ast.SelectionSet, v model.DeleteMyCollectionResp) graphql.Marshaler {
+	return ec._DeleteMyCollectionResp(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNDeleteMyCollectionResp2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐDeleteMyCollectionResp(ctx context.Context, sel ast.SelectionSet, v *model.DeleteMyCollectionResp) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._DeleteMyCollectionResp(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
 	res, err := graphql.UnmarshalInt(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5553,6 +5829,22 @@ func (ec *executionContext) marshalOCollection2ᚖjirkuᚗskᚋkulektorᚋgraph�
 		return graphql.Null
 	}
 	return ec._Collection(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOCollectionVariant2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollectionVariant(ctx context.Context, v interface{}) (*model.CollectionVariant, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.CollectionVariant)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOCollectionVariant2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollectionVariant(ctx context.Context, sel ast.SelectionSet, v *model.CollectionVariant) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {

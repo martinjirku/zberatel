@@ -10,5 +10,6 @@ func CollectionFromDb(c db.Collection) Collection {
 		Variant:     CollectionVariantNormal,
 		Type:        c.Type,
 		CreatedAt:   c.CreatedAt.Time,
+		UpdatedAt:   c.UpdatedAt.Time,
 	}
 }

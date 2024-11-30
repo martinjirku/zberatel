@@ -20,13 +20,14 @@ type Collection struct {
 	Type        *string           `json:"type,omitempty"`
 	Variant     CollectionVariant `json:"variant"`
 	CreatedAt   time.Time         `json:"createdAt"`
+	UpdatedAt   time.Time         `json:"updatedAt"`
 }
 
 type CollectionInput struct {
-	Title       string            `json:"title"`
-	Description *string           `json:"description,omitempty"`
-	Type        *string           `json:"type,omitempty"`
-	Variant     CollectionVariant `json:"variant"`
+	Title       string             `json:"title"`
+	Description *string            `json:"description,omitempty"`
+	Type        *string            `json:"type,omitempty"`
+	Variant     *CollectionVariant `json:"variant,omitempty"`
 }
 
 type CollectionsListInput struct {
@@ -41,6 +42,10 @@ type CollectionsListResp struct {
 type CreateCollectionResp struct {
 	Success bool        `json:"success"`
 	Data    *Collection `json:"data,omitempty"`
+}
+
+type DeleteMyCollectionResp struct {
+	Success bool `json:"success"`
 }
 
 type Meta struct {
