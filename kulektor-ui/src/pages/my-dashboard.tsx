@@ -17,6 +17,8 @@ import CollectionForm from "../containers/collection-form";
 export default function MyDashboard() {
   const [offset, setOffset] = useState(0);
   const [newCollectionDrawer, setNewCollectionDrawer] = useState(false);
+  const [activeCollectionIdDrawer, setActiveCollectionIdDrawer] =
+    useState<string>();
   const { data } = useQuery(MY_COLLECTIONS, {
     variables: { input: { paging: { limit: 4, offset } } },
   });
@@ -63,22 +65,40 @@ export default function MyDashboard() {
               <Card.Header className="flex flex-row justify-between">
                 <Typography type="h6">{c.title}</Typography>
                 <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <Tooltip>
-                    <Tooltip.Trigger as={"div"}>
-                      <IconButton
-                        as={Link}
-                        to={`my/collection/${c.id}/edit`}
-                        variant="ghost"
-                        size="xs"
-                      >
-                        <EditPencil />
-                      </IconButton>
-                    </Tooltip.Trigger>
-                    <Tooltip.Content>
-                      <Tooltip.Arrow />
-                      Edit Collection
-                    </Tooltip.Content>
-                  </Tooltip>
+                  <Drawer
+                    open={activeCollectionIdDrawer === c.id}
+                    onOpenChange={(open) => {
+                      if (!open) {
+                        setActiveCollectionIdDrawer(undefined);
+                      }
+                    }}
+                  >
+                    <Tooltip>
+                      <Tooltip.Trigger as={"div"}>
+                        <IconButton
+                          variant="ghost"
+                          size="xs"
+                          onClick={() => setActiveCollectionIdDrawer(c.id)}
+                        >
+                          <EditPencil />
+                        </IconButton>
+                      </Tooltip.Trigger>
+                      <Tooltip.Content>
+                        <Tooltip.Arrow />
+                        Edit Collection
+                      </Tooltip.Content>
+                    </Tooltip>
+                    <Drawer.Overlay lockScroll>
+                      <Drawer.Panel className="w-full sm:w-3/5 md:w-2/5 xl:w-1/5">
+                        <CollectionForm
+                          id={c.id}
+                          onSuccess={() =>
+                            setActiveCollectionIdDrawer(undefined)
+                          }
+                        />
+                      </Drawer.Panel>
+                    </Drawer.Overlay>
+                  </Drawer>
                 </span>
               </Card.Header>
               <Card.Body>

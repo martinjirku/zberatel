@@ -1,4 +1,4 @@
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import {
   Button,
   Drawer,
@@ -10,31 +10,87 @@ import {
 } from "@material-tailwind/react";
 import { Xmark } from "iconoir-react";
 import { useForm } from "react-hook-form";
-import { MY_NEW_COLLECTION, MY_COLLECTIONS } from "../queries";
+import {
+  MY_NEW_COLLECTION,
+  MY_COLLECTIONS,
+  MY_COLLECTIONS_DETAIL,
+  UPDATE_MY_COLLECTION,
+} from "../queries";
+import { CollectionField } from "../gql/graphql";
 
 interface Props {
+  id?: string;
   onSuccess(collectionId: string): void;
 }
-export default function CollectionForm({ onSuccess }: Props) {
+export default function CollectionForm({ id, onSuccess }: Props) {
   const {
     register,
     handleSubmit,
+    setValue,
     // formState: { errors },
-  } = useForm();
-  const [addCollection, { loading }] = useMutation(MY_NEW_COLLECTION, {
-    refetchQueries: [MY_COLLECTIONS],
+  } = useForm({});
+  const { loading } = useQuery(MY_COLLECTIONS_DETAIL, {
+    variables: { input: id },
+    skip: !id,
+    fetchPolicy: "network-only",
+    onCompleted(data) {
+      setValue("title", data.myCollectionDetail.title);
+      setValue("description", data.myCollectionDetail.description);
+      setValue("type", data.myCollectionDetail.type);
+    },
   });
+  const [addCollection, { loading: addingCollection }] = useMutation(
+    MY_NEW_COLLECTION,
+    {
+      refetchQueries: [MY_COLLECTIONS],
+    },
+  );
+  const [updateCollection, { loading: editingCollection }] = useMutation(
+    UPDATE_MY_COLLECTION,
+    {
+      refetchQueries: [MY_COLLECTIONS],
+    },
+  );
   const onSubmit = (data: any) => {
-    addCollection({
-      variables: {
-        input: {
-          title: data.title,
-          description: data.description,
-          type: data.type,
+    if (!id) {
+      addCollection({
+        variables: {
+          input: {
+            title: data.title,
+            description: data.description,
+            type: data.type,
+          },
         },
-      },
-    }).then((d) => onSuccess(d.data?.createMyCollection?.data?.id!));
+      }).then((d) => onSuccess(d.data?.createMyCollection?.data?.id!));
+    } else {
+      updateCollection({
+        variables: {
+          input: {
+            id,
+            collection: {
+              title: data.title,
+              description: data.description,
+              type: data.type,
+            },
+            fieldsToUpdate: [
+              CollectionField.Title,
+              CollectionField.Description,
+              CollectionField.Type,
+            ],
+          },
+        },
+      }).then((d) => onSuccess(d.data?.updateMyCollection?.data?.id!));
+    }
   };
+  if (loading) {
+    return (
+      <div className="w-full h-full flex flex-col justify-center align-middle">
+        <Spinner size="xl" />
+      </div>
+    );
+  }
+  const mutationLoading = editingCollection || addingCollection;
+  const mutationBtnLabel = id ? "Udate" : "Create";
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -45,6 +101,7 @@ export default function CollectionForm({ onSuccess }: Props) {
         <Drawer.DismissTrigger
           as={IconButton}
           size="sm"
+          type="button"
           variant="ghost"
           className="absolute right-2 top-2"
           isCircular
@@ -97,22 +154,22 @@ export default function CollectionForm({ onSuccess }: Props) {
         <Drawer.DismissTrigger
           as={Button}
           size="sm"
+          type="button"
           variant="outline"
           color="error"
-          isCircular
           className="flex-grow"
         >
           <Xmark className="h-5 w-5" />
           Cancel
         </Drawer.DismissTrigger>
-        {!loading ? (
-          <Button className="flex-grow" color="success">
-            Create
+        {!mutationLoading ? (
+          <Button type="submit" className="flex-grow" color="success">
+            {mutationBtnLabel}
           </Button>
         ) : (
-          <Button className="flex-grow" color="success" disabled>
+          <Button type="submit" className="flex-grow" color="success" disabled>
             <Spinner size="xs" className="mr-2" />
-            Create
+            {mutationBtnLabel}
           </Button>
         )}
       </div>

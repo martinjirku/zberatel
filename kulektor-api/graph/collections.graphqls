@@ -20,7 +20,7 @@ input CollectionsListInput {
 }
 
 input CollectionInput {
-  title: String!
+  title: String
   description: String
   type: String
   variant: CollectionVariant

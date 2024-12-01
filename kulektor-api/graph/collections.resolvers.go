@@ -16,12 +16,15 @@ import (
 
 // CreateMyCollection is the resolver for the createMyCollection field.
 func (r *mutationResolver) CreateMyCollection(ctx context.Context, input model.CollectionInput) (*model.CreateCollectionResp, error) {
+	if input.Title == nil {
+		return &model.CreateCollectionResp{}, fmt.Errorf("parsing collection fields: missing title")
+	}
 	user := auth.GetUser(ctx)
 	collection := db.CreateCollectionParams{
 		ID:          ksuid.NewKSUID(),
 		UserID:      user.UserID,
 		Description: input.Description,
-		Title:       input.Title,
+		Title:       *input.Title,
 		Type:        input.Type,
 	}
 
@@ -43,12 +46,16 @@ func (r *mutationResolver) UpdateMyCollection(ctx context.Context, input model.U
 	for _, f := range input.FieldsToUpdate {
 		fields = append(fields, string(f))
 	}
-	output, err := r.Queries.UpdateMyCollection(ctx, db.Collection{
+	collection := db.Collection{
 		ID:          input.ID,
 		UserID:      user.UserID,
-		Title:       input.Collection.Title,
 		Description: input.Collection.Description,
-	}, fields)
+		Type:        input.Collection.Type,
+	}
+	if input.Collection.Title != nil {
+		collection.Title = *input.Collection.Title
+	}
+	output, err := r.Queries.UpdateMyCollection(ctx, collection, fields)
 	if err != nil {
 		return &model.UpdateCollectionResp{}, fmt.Errorf("creating collection: %s", err)
 	}

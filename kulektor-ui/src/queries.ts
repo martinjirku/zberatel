@@ -25,6 +25,23 @@ export const MY_NEW_COLLECTION = graphql(`
   }
 `);
 
+export const UPDATE_MY_COLLECTION = graphql(`
+  mutation UpdateMyCollection($input: UpdateCollectionInput!) {
+    updateMyCollection(input: $input) {
+      success
+      data {
+        id
+        title
+        description
+        type
+        variant
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`);
+
 export const MY_COLLECTIONS_DETAIL = graphql(`
   query MyCollection($input: KSUID!) {
     myCollectionDetail(collectionID: $input) {

@@ -24,7 +24,7 @@ type Collection struct {
 }
 
 type CollectionInput struct {
-	Title       string             `json:"title"`
+	Title       *string            `json:"title,omitempty"`
 	Description *string            `json:"description,omitempty"`
 	Type        *string            `json:"type,omitempty"`
 	Variant     *CollectionVariant `json:"variant,omitempty"`

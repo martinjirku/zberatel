@@ -42,6 +42,10 @@ func GetDbColumnByJsonField(input interface{}, jsonTag string) (string, any, err
 			if field.Kind() == reflect.Ptr {
 				field = field.Elem()
 			}
+
+			if !field.IsValid() {
+				return dbTag, nil, nil
+			}
 			var fieldValue = field.Interface()
 			return dbTag, fieldValue, nil
 		}
