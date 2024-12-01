@@ -104,7 +104,7 @@ const DefaultLayout: FC<PropsWithChildren> = ({ children }) => {
 
       <div className="flex flex-1 overflow-hidden">
         {isAuthenticated ? (
-          <aside className="bg-gray-100 w-64 p-4 overflow-y-auto">
+          <aside className="bg-gray-100 w-28 sm:w-32 md:w-36 lg:w-56 p-4 overflow-y-auto">
             <nav className="space-y-4">
               <Link to="/my/dashboard" className="block">
                 Dashboard

@@ -59,10 +59,10 @@ export default function MyDashboard() {
             </Drawer>
           </div>
         </Card.Header>
-        <Card.Body className="flex flex-row gap-4">
+        <Card.Body className="grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 flex-row gap-4">
           {data?.myCollectionsList.items?.map((c) => (
-            <Card key={c.id} className="group">
-              <Card.Header className="flex flex-row justify-between">
+            <Card key={c.id} className="group flex flex-col">
+              <Card.Header className="flex flex-row grow-0 justify-between">
                 <Typography type="h6">{c.title}</Typography>
                 <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <Drawer
@@ -101,10 +101,10 @@ export default function MyDashboard() {
                   </Drawer>
                 </span>
               </Card.Header>
-              <Card.Body>
+              <Card.Body className="grow">
                 <Typography type="p">{c.description}</Typography>
               </Card.Body>
-              <Card.Footer className="flex flex-row gap-2">
+              <Card.Footer className="grid grid-cols-2 gap-2">
                 <Button
                   isFullWidth
                   size="sm"
@@ -114,12 +114,12 @@ export default function MyDashboard() {
                 >
                   Detail
                 </Button>
-                <DeleteCollectionButton id={c.id} />
+                <DeleteCollectionButton id={c.id} className="" />
               </Card.Footer>
             </Card>
           ))}
         </Card.Body>
-        <Card.Footer className="flex justify-end gap-4">
+        <Card.Footer className="flex justify-end gap-2">
           {hasPrev ? (
             <Button
               variant="outline"
@@ -153,7 +153,13 @@ export default function MyDashboard() {
   );
 }
 
-function DeleteCollectionButton({ id }: { id: string }) {
+function DeleteCollectionButton({
+  id,
+  className,
+}: {
+  id: string;
+  className: string;
+}) {
   const [deleteCollection, { loading }] = useMutation(DELETE_MY_COLLECTION, {
     refetchQueries: [MY_COLLECTIONS],
   });
@@ -164,12 +170,16 @@ function DeleteCollectionButton({ id }: { id: string }) {
       size="sm"
       color="warning"
       variant="outline"
-      className="flex flex-row gap-2"
+      className={`flex flex-row gap-2 ` + className}
       onClick={() => deleteCollection({ variables: { input: id } })}
       disabled={loading}
     >
-      {!loading ? <Trash className="text-xs" /> : <Spinner size="xs" />}
-      Delete
+      {!loading ? (
+        <Trash className="text-xs flex-shrink-0" />
+      ) : (
+        <Spinner size="xs" className="flex-shrink-0" />
+      )}
+      <span className="flex-shrink">Delete</span>
     </Button>
   );
 }

@@ -53,7 +53,13 @@ export const AuthStateProvider: FC<PropsWithChildren> = ({ children }) => {
   } = useAuth0<Auth0User>();
 
   useEffect(() => {
-    getAccessTokenSilently();
+    getAccessTokenSilently().catch((error) => {
+      if (error.error === "login_required") {
+        logout().then(() => {
+          loginWithPopup();
+        });
+      }
+    });
   });
   let user: User | undefined;
   if (auth0User) {
