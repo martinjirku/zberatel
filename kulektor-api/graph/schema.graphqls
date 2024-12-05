@@ -24,6 +24,7 @@ scalar KSUID
 enum Role {
   PUBLIC
   COLLECTOR
+  EDITOR
   ADMIN
 }
 

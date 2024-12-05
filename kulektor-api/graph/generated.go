@@ -59,7 +59,6 @@ type ComplexityRoot struct {
 		Title       func(childComplexity int) int
 		Type        func(childComplexity int) int
 		UpdatedAt   func(childComplexity int) int
-		Variant     func(childComplexity int) int
 	}
 
 	CollectionsListResp struct {
@@ -183,13 +182,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Collection.UpdatedAt(childComplexity), true
-
-	case "Collection.variant":
-		if e.complexity.Collection.Variant == nil {
-			break
-		}
-
-		return e.complexity.Collection.Variant(childComplexity), true
 
 	case "CollectionsListResp.items":
 		if e.complexity.CollectionsListResp.Items == nil {
@@ -921,50 +913,6 @@ func (ec *executionContext) fieldContext_Collection_type(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Collection_variant(ctx context.Context, field graphql.CollectedField, obj *model.Collection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Collection_variant(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Variant, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(model.CollectionVariant)
-	fc.Result = res
-	return ec.marshalNCollectionVariant2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollectionVariant(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Collection_variant(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Collection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type CollectionVariant does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Collection_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.Collection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Collection_createdAt(ctx, field)
 	if err != nil {
@@ -1100,8 +1048,6 @@ func (ec *executionContext) fieldContext_CollectionsListResp_items(_ context.Con
 				return ec.fieldContext_Collection_description(ctx, field)
 			case "type":
 				return ec.fieldContext_Collection_type(ctx, field)
-			case "variant":
-				return ec.fieldContext_Collection_variant(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Collection_createdAt(ctx, field)
 			case "updatedAt":
@@ -1255,8 +1201,6 @@ func (ec *executionContext) fieldContext_CreateCollectionResp_data(_ context.Con
 				return ec.fieldContext_Collection_description(ctx, field)
 			case "type":
 				return ec.fieldContext_Collection_type(ctx, field)
-			case "variant":
-				return ec.fieldContext_Collection_variant(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Collection_createdAt(ctx, field)
 			case "updatedAt":
@@ -1952,8 +1896,6 @@ func (ec *executionContext) fieldContext_Query_myCollectionDetail(ctx context.Co
 				return ec.fieldContext_Collection_description(ctx, field)
 			case "type":
 				return ec.fieldContext_Collection_type(ctx, field)
-			case "variant":
-				return ec.fieldContext_Collection_variant(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Collection_createdAt(ctx, field)
 			case "updatedAt":
@@ -2281,8 +2223,6 @@ func (ec *executionContext) fieldContext_UpdateCollectionResp_data(_ context.Con
 				return ec.fieldContext_Collection_description(ctx, field)
 			case "type":
 				return ec.fieldContext_Collection_type(ctx, field)
-			case "variant":
-				return ec.fieldContext_Collection_variant(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Collection_createdAt(ctx, field)
 			case "updatedAt":
@@ -4206,7 +4146,7 @@ func (ec *executionContext) unmarshalInputCollectionInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"title", "description", "type", "variant"}
+	fieldsInOrder := [...]string{"title", "description", "type"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4234,13 +4174,6 @@ func (ec *executionContext) unmarshalInputCollectionInput(ctx context.Context, o
 				return it, err
 			}
 			it.Type = data
-		case "variant":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("variant"))
-			data, err := ec.unmarshalOCollectionVariant2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollectionVariant(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Variant = data
 		}
 	}
 
@@ -4382,11 +4315,6 @@ func (ec *executionContext) _Collection(ctx context.Context, sel ast.SelectionSe
 			out.Values[i] = ec._Collection_description(ctx, field, obj)
 		case "type":
 			out.Values[i] = ec._Collection_type(ctx, field, obj)
-		case "variant":
-			out.Values[i] = ec._Collection_variant(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "createdAt":
 			out.Values[i] = ec._Collection_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -5379,16 +5307,6 @@ func (ec *executionContext) unmarshalNCollectionInput2ᚖjirkuᚗskᚋkulektor�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCollectionVariant2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollectionVariant(ctx context.Context, v interface{}) (model.CollectionVariant, error) {
-	var res model.CollectionVariant
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNCollectionVariant2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollectionVariant(ctx context.Context, sel ast.SelectionSet, v model.CollectionVariant) graphql.Marshaler {
-	return v
-}
-
 func (ec *executionContext) unmarshalNCollectionsListInput2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollectionsListInput(ctx context.Context, v interface{}) (model.CollectionsListInput, error) {
 	res, err := ec.unmarshalInputCollectionsListInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5829,22 +5747,6 @@ func (ec *executionContext) marshalOCollection2ᚖjirkuᚗskᚋkulektorᚋgraph�
 		return graphql.Null
 	}
 	return ec._Collection(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOCollectionVariant2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollectionVariant(ctx context.Context, v interface{}) (*model.CollectionVariant, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var res = new(model.CollectionVariant)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOCollectionVariant2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCollectionVariant(ctx context.Context, sel ast.SelectionSet, v *model.CollectionVariant) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return v
 }
 
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {

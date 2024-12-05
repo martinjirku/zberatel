@@ -14,20 +14,18 @@ import (
 )
 
 type Collection struct {
-	ID          ksuid.KSUID       `json:"id"`
-	Title       string            `json:"title"`
-	Description *string           `json:"description,omitempty"`
-	Type        *string           `json:"type,omitempty"`
-	Variant     CollectionVariant `json:"variant"`
-	CreatedAt   time.Time         `json:"createdAt"`
-	UpdatedAt   time.Time         `json:"updatedAt"`
+	ID          ksuid.KSUID `json:"id"`
+	Title       string      `json:"title"`
+	Description *string     `json:"description,omitempty"`
+	Type        *string     `json:"type,omitempty"`
+	CreatedAt   time.Time   `json:"createdAt"`
+	UpdatedAt   time.Time   `json:"updatedAt"`
 }
 
 type CollectionInput struct {
-	Title       *string            `json:"title,omitempty"`
-	Description *string            `json:"description,omitempty"`
-	Type        *string            `json:"type,omitempty"`
-	Variant     *CollectionVariant `json:"variant,omitempty"`
+	Title       *string `json:"title,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Type        *string `json:"type,omitempty"`
 }
 
 type CollectionsListInput struct {
@@ -84,19 +82,17 @@ const (
 	CollectionFieldTitle       CollectionField = "title"
 	CollectionFieldDescription CollectionField = "description"
 	CollectionFieldType        CollectionField = "type"
-	CollectionFieldVariant     CollectionField = "variant"
 )
 
 var AllCollectionField = []CollectionField{
 	CollectionFieldTitle,
 	CollectionFieldDescription,
 	CollectionFieldType,
-	CollectionFieldVariant,
 }
 
 func (e CollectionField) IsValid() bool {
 	switch e {
-	case CollectionFieldTitle, CollectionFieldDescription, CollectionFieldType, CollectionFieldVariant:
+	case CollectionFieldTitle, CollectionFieldDescription, CollectionFieldType:
 		return true
 	}
 	return false
@@ -120,46 +116,5 @@ func (e *CollectionField) UnmarshalGQL(v interface{}) error {
 }
 
 func (e CollectionField) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-type CollectionVariant string
-
-const (
-	CollectionVariantNormal    CollectionVariant = "NORMAL"
-	CollectionVariantBlueprint CollectionVariant = "BLUEPRINT"
-)
-
-var AllCollectionVariant = []CollectionVariant{
-	CollectionVariantNormal,
-	CollectionVariantBlueprint,
-}
-
-func (e CollectionVariant) IsValid() bool {
-	switch e {
-	case CollectionVariantNormal, CollectionVariantBlueprint:
-		return true
-	}
-	return false
-}
-
-func (e CollectionVariant) String() string {
-	return string(e)
-}
-
-func (e *CollectionVariant) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = CollectionVariant(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid CollectionVariant", str)
-	}
-	return nil
-}
-
-func (e CollectionVariant) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

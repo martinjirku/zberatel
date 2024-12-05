@@ -16,3 +16,29 @@ sql:
         overrides:
           - db_type: "ksuid"
             go_type: "jirku.sk/kulektor/ksuid.KSUID"
+          - column: "collection_item.meta"
+            go_type: "jirku.sk/kulektor/details.Meta"
+          - column: "collection_item.details"
+            go_type: "jirku.sk/kulektor/details.Details"
+          - column: "collections_collection_item.collection_id"
+            go_type: "jirku.sk/kulektor/ksuid.KSUID"
+          - column: "collections_collection_item.collection_item_id"
+            go_type: "jirku.sk/kulektor/ksuid.KSUID"
+          - column: "collections.blueprint_id"
+            go_type:
+              import: "jirku.sk/kulektor/ksuid"
+              type: "KSUID"
+              pointer: true
+          - column: "blueprint_item.meta"
+            go_type: "jirku.sk/kulektor/details.Meta"
+          - column: "blueprint_item.details"
+            go_type: "jirku.sk/kulektor/details.Details"
+          - column: "blueprints_blueprint_item.blueprint_item_id"
+            go_type: "jirku.sk/kulektor/ksuid.KSUID"
+          - column: "blueprints_blueprint_item.blueprints_id"
+            go_type: "jirku.sk/kulektor/ksuid.KSUID"
+          - column: "documents.table_id"
+            go_type:
+              import: "jirku.sk/kulektor/ksuid"
+              type: "KSUID"
+              pointer: true

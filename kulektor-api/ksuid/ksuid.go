@@ -44,11 +44,18 @@ func (k *KSUID) UnmarshalGQL(src interface{}) error {
 		ks  ksuid.KSUID
 		err error
 	)
+	if src == nil {
+		return nil
+	}
 	switch v := src.(type) {
 	case []byte:
 		ks, err = ksuid.FromBytes(v)
+	case *[]byte:
+		ks, err = ksuid.FromBytes(*v)
 	case string:
 		ks, err = ksuid.Parse(v)
+	case *string:
+		ks, err = ksuid.Parse(*v)
 	default:
 		return fmt.Errorf("expected []byte|string, got %T", src)
 	}

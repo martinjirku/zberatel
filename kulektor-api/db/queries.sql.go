@@ -14,7 +14,7 @@ import (
 const createCollection = `-- name: CreateCollection :one
 INSERT INTO collections (id, user_id, title, description, type)
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id, user_id, title, description, type, created_at, updated_at, blueprint_id, is_blueprint
+RETURNING id, user_id, title, description, type, created_at, updated_at, blueprint_id
 `
 
 type CreateCollectionParams struct {
@@ -43,7 +43,6 @@ func (q *Queries) CreateCollection(ctx context.Context, arg CreateCollectionPara
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.BlueprintID,
-		&i.IsBlueprint,
 	)
 	return i, err
 }
@@ -63,7 +62,7 @@ func (q *Queries) DeleteUserCollectionByID(ctx context.Context, arg DeleteUserCo
 }
 
 const getUserCollectionByID = `-- name: GetUserCollectionByID :one
-SELECT id, user_id, title, description, type, created_at, updated_at, blueprint_id, is_blueprint FROM collections WHERE id = $1 AND user_id = $2
+SELECT id, user_id, title, description, type, created_at, updated_at, blueprint_id FROM collections WHERE id = $1 AND user_id = $2
 `
 
 type GetUserCollectionByIDParams struct {
@@ -83,7 +82,6 @@ func (q *Queries) GetUserCollectionByID(ctx context.Context, arg GetUserCollecti
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.BlueprintID,
-		&i.IsBlueprint,
 	)
 	return i, err
 }
@@ -100,7 +98,7 @@ func (q *Queries) GetUsersCollectionListTotal(ctx context.Context, userID string
 }
 
 const getUsersCollectionsList = `-- name: GetUsersCollectionsList :many
-SELECT id, user_id, title, description, type, created_at, updated_at, blueprint_id, is_blueprint FROM collections WHERE user_id = $1 OFFSET $2 LIMIT $3
+SELECT id, user_id, title, description, type, created_at, updated_at, blueprint_id FROM collections WHERE user_id = $1 OFFSET $2 LIMIT $3
 `
 
 type GetUsersCollectionsListParams struct {
@@ -127,7 +125,6 @@ func (q *Queries) GetUsersCollectionsList(ctx context.Context, arg GetUsersColle
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.BlueprintID,
-			&i.IsBlueprint,
 		); err != nil {
 			return nil, err
 		}

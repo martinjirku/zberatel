@@ -17,7 +17,7 @@ func GetUpdateCollectionQuery(ctx context.Context, c Collection, fields []string
 			psql.Quote("user_id").EQ(psql.Arg(c.UserID)).And(
 				psql.Quote("id").EQ(psql.Arg(c.ID))),
 		),
-		um.Returning(psql.RawQuery("id, user_id, title, description, type, created_at, updated_at, blueprint_id, is_blueprint")),
+		um.Returning(psql.RawQuery("id, user_id, title, description, type, created_at, updated_at, blueprint_id")),
 	)
 	for _, f := range fields {
 		col, val, err := GetDbColumnByJsonField(c, f)
@@ -36,7 +36,7 @@ func (q *Queries) UpdateMyCollection(ctx context.Context, c Collection, fields [
 	}
 	row := q.db.QueryRow(ctx, query, args...)
 
-	var i Collection
+	i := Collection{}
 	err = row.Scan(&i)
 	if err != nil {
 		return i, fmt.Errorf("calling query %q: %s", query, err)

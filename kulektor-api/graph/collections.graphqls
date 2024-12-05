@@ -23,7 +23,6 @@ input CollectionInput {
   title: String
   description: String
   type: String
-  variant: CollectionVariant
 }
 
 input UpdateCollectionInput {
@@ -34,16 +33,10 @@ input UpdateCollectionInput {
 
 # ENUMS
 
-enum CollectionVariant {
-  NORMAL
-  BLUEPRINT
-}
-
 enum CollectionField {
   title
   description
   type
-  variant
 }
 
 # TYPES
@@ -53,7 +46,6 @@ type Collection {
   title: String!
   description: String
   type: String
-  variant: CollectionVariant!
   createdAt: Date!
   updatedAt: Date!
 }

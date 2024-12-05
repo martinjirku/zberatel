@@ -57,7 +57,7 @@ func (r *mutationResolver) UpdateMyCollection(ctx context.Context, input model.U
 	}
 	output, err := r.Queries.UpdateMyCollection(ctx, collection, fields)
 	if err != nil {
-		return &model.UpdateCollectionResp{}, fmt.Errorf("creating collection: %s", err)
+		return &model.UpdateCollectionResp{}, fmt.Errorf("updating collection: %s", err)
 	}
 	c := model.CollectionFromDb(output)
 	return &model.UpdateCollectionResp{
@@ -91,7 +91,7 @@ func (r *queryResolver) MyCollectionsList(ctx context.Context, input model.Colle
 
 	items, err := r.Queries.GetUsersCollectionsList(ctx, params)
 	if err != nil {
-		return nil, fmt.Errorf("requesting collection list with offset %d, limit %d", params.Offset, params.Limit)
+		return nil, fmt.Errorf("requesting collection list with offset %d, limit %d: %s", params.Offset, params.Limit, err)
 	}
 	total, err := r.Queries.GetUsersCollectionListTotal(ctx, user.UserID)
 	if err != nil {

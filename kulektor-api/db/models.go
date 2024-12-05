@@ -6,8 +6,35 @@ package db
 
 import (
 	"github.com/jackc/pgx/v5/pgtype"
+	"jirku.sk/kulektor/details"
 	"jirku.sk/kulektor/ksuid"
 )
+
+type Blueprint struct {
+	ID          ksuid.KSUID      `db:"id" json:"id"`
+	UserID      *string          `db:"user_id" json:"userId"`
+	Title       string           `db:"title" json:"title"`
+	Description *string          `db:"description" json:"description"`
+	CreatedAt   pgtype.Timestamp `db:"created_at" json:"createdAt"`
+	UpdatedAt   pgtype.Timestamp `db:"updated_at" json:"updatedAt"`
+}
+
+type BlueprintItem struct {
+	ID          ksuid.KSUID      `db:"id" json:"id"`
+	Title       *string          `db:"title" json:"title"`
+	Description *string          `db:"description" json:"description"`
+	ProductCode *string          `db:"product_code" json:"productCode"`
+	Details     details.Details  `db:"details" json:"details"`
+	Meta        details.Meta     `db:"meta" json:"meta"`
+	CreatedAt   pgtype.Timestamp `db:"created_at" json:"createdAt"`
+	UpdatedAt   pgtype.Timestamp `db:"updated_at" json:"updatedAt"`
+}
+
+type BlueprintsBlueprintItem struct {
+	BlueprintsID    ksuid.KSUID      `db:"blueprints_id" json:"blueprintsId"`
+	BlueprintItemID ksuid.KSUID      `db:"blueprint_item_id" json:"blueprintItemId"`
+	CreatedAt       pgtype.Timestamp `db:"created_at" json:"createdAt"`
+}
 
 type Collection struct {
 	ID          ksuid.KSUID      `db:"id" json:"id"`
@@ -17,8 +44,33 @@ type Collection struct {
 	Type        *string          `db:"type" json:"type"`
 	CreatedAt   pgtype.Timestamp `db:"created_at" json:"createdAt"`
 	UpdatedAt   pgtype.Timestamp `db:"updated_at" json:"updatedAt"`
-	BlueprintID interface{}      `db:"blueprint_id" json:"blueprintId"`
-	IsBlueprint bool             `db:"is_blueprint" json:"isBlueprint"`
+	BlueprintID *ksuid.KSUID     `db:"blueprint_id" json:"blueprintId"`
+}
+
+type CollectionItem struct {
+	ID          ksuid.KSUID      `db:"id" json:"id"`
+	Title       *string          `db:"title" json:"title"`
+	Description *string          `db:"description" json:"description"`
+	Details     details.Details  `db:"details" json:"details"`
+	Meta        details.Meta     `db:"meta" json:"meta"`
+	CreatedAt   pgtype.Timestamp `db:"created_at" json:"createdAt"`
+	UpdatedAt   pgtype.Timestamp `db:"updated_at" json:"updatedAt"`
+}
+
+type CollectionsCollectionItem struct {
+	CollectionID     ksuid.KSUID      `db:"collection_id" json:"collectionId"`
+	CollectionItemID ksuid.KSUID      `db:"collection_item_id" json:"collectionItemId"`
+	CreatedAt        pgtype.Timestamp `db:"created_at" json:"createdAt"`
+}
+
+type Document struct {
+	ID        ksuid.KSUID  `db:"id" json:"id"`
+	TableName string       `db:"table_name" json:"tableName"`
+	TableID   *ksuid.KSUID `db:"table_id" json:"tableId"`
+	Title     string       `db:"title" json:"title"`
+	Type      string       `db:"type" json:"type"`
+	Location  string       `db:"location" json:"location"`
+	UserID    *string      `db:"user_id" json:"userId"`
 }
 
 type User struct {

@@ -17,7 +17,6 @@ export const MY_NEW_COLLECTION = graphql(`
         title
         description
         type
-        variant
         createdAt
         updatedAt
       }
@@ -34,7 +33,6 @@ export const UPDATE_MY_COLLECTION = graphql(`
         title
         description
         type
-        variant
         createdAt
         updatedAt
       }
@@ -49,7 +47,6 @@ export const MY_COLLECTIONS_DETAIL = graphql(`
       title
       description
       type
-      variant
       createdAt
     }
   }
