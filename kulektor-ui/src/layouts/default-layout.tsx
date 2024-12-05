@@ -8,7 +8,7 @@ import {
   Menu,
   Avatar,
 } from "@material-tailwind/react";
-import { Link, Outlet } from "react-router";
+import { Link, Outlet, useLocation } from "react-router";
 import {
   HeadsetHelp,
   LogOut,
@@ -20,17 +20,27 @@ import {
   Xmark,
 } from "iconoir-react";
 import { useAuth } from "../auth/AuthState";
+import { twMerge } from "tailwind-merge";
 
 const DefaultLayout: FC<PropsWithChildren> = ({ children }) => {
   const [openNav, setOpenNav] = useState(false);
-  const { loginWithPopup, isAuthenticated, logout, user } = useAuth();
+  const {
+    loginWithPopup,
+    isAuthenticated,
+    logout,
+    user,
+    isCollector,
+    isEditor,
+  } = useAuth();
   useEffect(() => {
     window.addEventListener(
       "resize",
       () => window.innerWidth >= 640 && setOpenNav(false),
     );
   }, []);
-
+  const navigation = useLocation();
+  const pathName = navigation?.pathname;
+  const activeLinkClass = "text-blue-500 font-semibold";
   return (
     <div className="flex h-screen flex-col">
       <Navbar className="sticky top-0 mx-auto w-full bg-black dark:bg-surface-dark p-4 border-none rounded-none">
@@ -106,12 +116,34 @@ const DefaultLayout: FC<PropsWithChildren> = ({ children }) => {
         {isAuthenticated ? (
           <aside className="bg-gray-100 w-28 sm:w-32 md:w-36 lg:w-56 p-4 overflow-y-auto">
             <nav className="space-y-4">
-              <Link to="/my/dashboard" className="block">
-                Dashboard
-              </Link>
+              {isCollector() && (
+                <Link
+                  to="/my/collections"
+                  className={twMerge(
+                    "block",
+                    pathName?.startsWith("/my/collections") && activeLinkClass,
+                  )}
+                >
+                  Collections
+                </Link>
+              )}
+              {isEditor() && (
+                <Link
+                  to="/blueprints"
+                  className={twMerge(
+                    "block",
+                    pathName?.startsWith("/blueprints") && activeLinkClass,
+                  )}
+                >
+                  Blueprints
+                </Link>
+              )}
               <Link
                 to="/my/profile"
-                className="block text-blue-500 font-semibold"
+                className={twMerge(
+                  "block",
+                  pathName === "/my/profile" && activeLinkClass,
+                )}
               >
                 My Profile
               </Link>

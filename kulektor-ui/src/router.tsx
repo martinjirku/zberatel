@@ -5,7 +5,7 @@ const Home = lazy(() => import("./Home.tsx"));
 // const AuthLayout = lazy(() => import("./layouts/auth-layout.tsx"));
 const DefaultLayout = lazy(() => import("./layouts/default-layout.tsx"));
 const MyUser = lazy(() => import("./pages/my-profile.tsx"));
-const MyDashboard = lazy(() => import("./pages/my-dashboard.tsx"));
+const MyDashboard = lazy(() => import("./pages/my-collections.tsx"));
 const MyCollectionDetail = lazy(
   () => import("./pages/my-collection-detail.tsx"),
 );
@@ -40,7 +40,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "dashboard",
+        path: "collections",
         id: "my-dashboard",
         element: (
           <Suspense fallback="loading User">
@@ -49,8 +49,8 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "collection/:id",
-        id: "my-collection/detail",
+        path: "collections/:id",
+        id: "my-collections/detail",
         element: (
           <Suspense fallback="loading User">
             <MyCollectionDetail />

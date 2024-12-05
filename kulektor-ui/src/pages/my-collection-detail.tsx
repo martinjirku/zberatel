@@ -38,11 +38,11 @@ export default function MyCollectionDetail() {
 
         <Breadcrumb.Link
           as={Link}
-          to="/my/dashboard"
+          to="/my/collections"
           className="rounded bg-secondary px-2 py-1 text-secondary-foreground hover:bg-primary hover:text-primary-foreground"
         >
           <Cube className="h-4 w-4" />
-          Dashboard
+          Collections
         </Breadcrumb.Link>
         <Breadcrumb.Separator>
           <NavArrowRight className="h-4 w-4 stroke-2" />

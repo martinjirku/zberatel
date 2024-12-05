@@ -22,6 +22,7 @@ export interface AuthState {
   user?: User;
   isCollector: () => boolean;
   isAdmin: () => boolean;
+  isEditor: () => boolean;
 }
 
 export interface User {
@@ -41,6 +42,7 @@ const authContext = createContext<AuthState>({
   logout: () => Promise.resolve(),
   isCollector: () => false,
   isAdmin: () => false,
+  isEditor: () => false,
 });
 
 export const AuthStateProvider: FC<PropsWithChildren> = ({ children }) => {
@@ -80,8 +82,14 @@ export const AuthStateProvider: FC<PropsWithChildren> = ({ children }) => {
     loginWithPopup,
     logout,
     user,
-    isCollector: () => !!user?.roles.includes(Role.Collector),
-    isAdmin: () => !!user?.roles.includes(Role.Admin),
+    isCollector: () =>
+      !!user?.roles.some(
+        (r) => r.toLowerCase() === Role.Collector.toLowerCase(),
+      ),
+    isAdmin: () =>
+      !!user?.roles.some((r) => r.toLowerCase() === Role.Admin.toLowerCase()),
+    isEditor: () =>
+      !!user?.roles.some((r) => r.toLowerCase() === Role.Editor.toLowerCase()),
   };
   return <authContext.Provider value={state}>{children}</authContext.Provider>;
 };

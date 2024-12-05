@@ -110,7 +110,7 @@ export default function MyDashboard() {
                   size="sm"
                   color="primary"
                   as={Link}
-                  to={`/my/collection/${c.id}`}
+                  to={`/my/collections/${c.id}`}
                 >
                   Detail
                 </Button>
