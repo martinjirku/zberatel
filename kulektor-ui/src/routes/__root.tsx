@@ -1,9 +1,13 @@
 import * as React from "react";
-import { createRootRoute } from "@tanstack/react-router";
+import { createRootRouteWithContext } from "@tanstack/react-router";
 import DefaultLayout from "../layouts/default-layout";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+import { AuthState } from "../auth/AuthState";
 
-export const Route = createRootRoute({
+interface RootContext {
+  auth: AuthState;
+}
+export const Route = createRootRouteWithContext<RootContext>()({
   component: RootComponent,
 });
 

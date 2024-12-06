@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as BlueprintsImport } from './routes/blueprints'
+import { Route as IndexImport } from './routes/index'
 import { Route as MyProfileImport } from './routes/my.profile'
 import { Route as MyCollectionsImport } from './routes/my.collections'
 import { Route as MyCollectionsIdImport } from './routes/my.collections_.$id'
@@ -21,6 +22,12 @@ import { Route as MyCollectionsIdImport } from './routes/my.collections_.$id'
 const BlueprintsRoute = BlueprintsImport.update({
   id: '/blueprints',
   path: '/blueprints',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const IndexRoute = IndexImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -46,6 +53,13 @@ const MyCollectionsIdRoute = MyCollectionsIdImport.update({
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
     '/blueprints': {
       id: '/blueprints'
       path: '/blueprints'
@@ -80,6 +94,7 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
   '/blueprints': typeof BlueprintsRoute
   '/my/collections': typeof MyCollectionsRoute
   '/my/profile': typeof MyProfileRoute
@@ -87,6 +102,7 @@ export interface FileRoutesByFullPath {
 }
 
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
   '/blueprints': typeof BlueprintsRoute
   '/my/collections': typeof MyCollectionsRoute
   '/my/profile': typeof MyProfileRoute
@@ -95,6 +111,7 @@ export interface FileRoutesByTo {
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
+  '/': typeof IndexRoute
   '/blueprints': typeof BlueprintsRoute
   '/my/collections': typeof MyCollectionsRoute
   '/my/profile': typeof MyProfileRoute
@@ -104,14 +121,21 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
     | '/blueprints'
     | '/my/collections'
     | '/my/profile'
     | '/my/collections/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/blueprints' | '/my/collections' | '/my/profile' | '/my/collections/$id'
+  to:
+    | '/'
+    | '/blueprints'
+    | '/my/collections'
+    | '/my/profile'
+    | '/my/collections/$id'
   id:
     | '__root__'
+    | '/'
     | '/blueprints'
     | '/my/collections'
     | '/my/profile'
@@ -120,6 +144,7 @@ export interface FileRouteTypes {
 }
 
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   BlueprintsRoute: typeof BlueprintsRoute
   MyCollectionsRoute: typeof MyCollectionsRoute
   MyProfileRoute: typeof MyProfileRoute
@@ -127,6 +152,7 @@ export interface RootRouteChildren {
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   BlueprintsRoute: BlueprintsRoute,
   MyCollectionsRoute: MyCollectionsRoute,
   MyProfileRoute: MyProfileRoute,
@@ -143,11 +169,15 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
+        "/",
         "/blueprints",
         "/my/collections",
         "/my/profile",
         "/my/collections_/$id"
       ]
+    },
+    "/": {
+      "filePath": "index.tsx"
     },
     "/blueprints": {
       "filePath": "blueprints.tsx"

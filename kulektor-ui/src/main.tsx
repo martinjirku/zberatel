@@ -6,8 +6,12 @@ import ApiProvider from "./api/ApiProvider";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 
 import { routeTree } from "./routeTree.gen";
+import { useAuth } from "./auth/AuthState";
 
-const router = createRouter({ routeTree });
+const router = createRouter({
+  routeTree,
+  context: { auth: undefined! },
+});
 
 declare module "@tanstack/react-router" {
   interface Register {
@@ -15,12 +19,17 @@ declare module "@tanstack/react-router" {
   }
 }
 
+const InnerApp = () => {
+  const auth = useAuth();
+  return <RouterProvider router={router} context={{ auth }} />;
+};
+
 // Render the app
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <AuthProvider>
       <ApiProvider>
-        <RouterProvider router={router} />
+        <InnerApp />
       </ApiProvider>
     </AuthProvider>
   </StrictMode>,
