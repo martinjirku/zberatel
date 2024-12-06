@@ -56,6 +56,9 @@ export const AuthStateProvider: FC<PropsWithChildren> = ({ children }) => {
 
   useEffect(() => {
     getAccessTokenSilently().catch((error) => {
+      if (error.error === "missing_refresh_token" && !!user) {
+        logout();
+      }
       if (error.error === "login_required") {
         logout().then(() => {
           loginWithPopup();

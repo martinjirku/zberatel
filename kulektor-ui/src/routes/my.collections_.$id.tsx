@@ -6,11 +6,15 @@ import {
   Typography,
 } from "@material-tailwind/react";
 import { Cube, CursorPointer, Home, NavArrowRight } from "iconoir-react";
-import { Link, useParams } from "react-router";
 import { MY_COLLECTIONS_DETAIL } from "../queries";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
-export default function MyCollectionDetail() {
-  let { id } = useParams();
+export const Route = createFileRoute("/my/collections_/$id")({
+  component: MyCollectionDetail,
+});
+
+function MyCollectionDetail() {
+  const { id } = Route.useParams();
   const { data, loading } = useQuery(MY_COLLECTIONS_DETAIL, {
     variables: { input: id },
   });
@@ -35,7 +39,6 @@ export default function MyCollectionDetail() {
         <Breadcrumb.Separator>
           <NavArrowRight className="h-4 w-4 stroke-2" />
         </Breadcrumb.Separator>
-
         <Breadcrumb.Link
           as={Link}
           to="/my/collections"

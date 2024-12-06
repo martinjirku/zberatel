@@ -8,7 +8,6 @@ import {
   Menu,
   Avatar,
 } from "@material-tailwind/react";
-import { Link, Outlet, useLocation } from "react-router";
 import {
   HeadsetHelp,
   LogOut,
@@ -21,6 +20,7 @@ import {
 } from "iconoir-react";
 import { useAuth } from "../auth/AuthState";
 import { twMerge } from "tailwind-merge";
+import { Link, Outlet, useLocation } from "@tanstack/react-router";
 
 const DefaultLayout: FC<PropsWithChildren> = ({ children }) => {
   const [openNav, setOpenNav] = useState(false);

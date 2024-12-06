@@ -1,4 +1,8 @@
-export default function MyUser() {
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/my/profile")({ component: MyUser });
+
+function MyUser() {
   return (
     <main className="flex-1 bg-gray-50 overflow-y-auto p-4">
       <h1 className="text-2xl font-bold mb-4">My Profile</h1>
