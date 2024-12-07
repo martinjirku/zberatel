@@ -11,6 +11,32 @@ import (
 	"jirku.sk/kulektor/ksuid"
 )
 
+const createBlueprint = `-- name: CreateBlueprint :one
+INSERT INTO blueprints (id, title, description)
+VALUES ($1, $2, $3)
+RETURNING id, user_id, title, description, created_at, updated_at
+`
+
+type CreateBlueprintParams struct {
+	ID          ksuid.KSUID `db:"id" json:"id"`
+	Title       string      `db:"title" json:"title"`
+	Description *string     `db:"description" json:"description"`
+}
+
+func (q *Queries) CreateBlueprint(ctx context.Context, arg CreateBlueprintParams) (Blueprint, error) {
+	row := q.db.QueryRow(ctx, createBlueprint, arg.ID, arg.Title, arg.Description)
+	var i Blueprint
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Title,
+		&i.Description,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const createCollection = `-- name: CreateCollection :one
 INSERT INTO collections (id, user_id, title, description, type)
 VALUES ($1, $2, $3, $4, $5)
@@ -134,4 +160,15 @@ func (q *Queries) GetUsersCollectionsList(ctx context.Context, arg GetUsersColle
 		return nil, err
 	}
 	return items, nil
+}
+
+const count = `-- name: count :one
+SELECT count(*) as counts FROM blueprints
+`
+
+func (q *Queries) count(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, count)
+	var counts int64
+	err := row.Scan(&counts)
+	return counts, err
 }

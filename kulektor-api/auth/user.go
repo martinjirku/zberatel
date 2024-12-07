@@ -18,12 +18,14 @@ const (
 	RolePublic    Role = "public"
 	RoleCollector Role = "collector"
 	RoleAdmin     Role = "admin"
+	RoleEditor    Role = "editor"
 )
 
 var AllRoles = []Role{
 	RolePublic,
 	RoleCollector,
 	RoleAdmin,
+	RoleEditor,
 }
 
 func (r Role) String() string {
@@ -165,6 +167,7 @@ func GetUserAroundOperation(config config.Configuration, log *slog.Logger) graph
 							user.Roles = append(user.Roles, Role(r))
 						}
 					}
+					slog.Debug("claims", slog.Any("roles", user.Roles))
 				}
 			}
 		}

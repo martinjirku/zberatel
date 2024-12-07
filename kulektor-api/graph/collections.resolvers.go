@@ -134,12 +134,3 @@ func (r *queryResolver) MyCollectionDetail(ctx context.Context, collectionID ksu
 func (r *queryResolver) CollectionsList(ctx context.Context, input model.CollectionsListInput) (*model.CollectionsListResp, error) {
 	panic(fmt.Errorf("not implemented: CollectionsList - collectionsList"))
 }
-
-// Mutation returns MutationResolver implementation.
-func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
-
-// Query returns QueryResolver implementation.
-func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
-
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }

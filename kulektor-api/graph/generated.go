@@ -52,6 +52,20 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	Blueprint struct {
+		CreatedAt   func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Title       func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
+		UserID      func(childComplexity int) int
+	}
+
+	BlueprintsListResp struct {
+		Items func(childComplexity int) int
+		Meta  func(childComplexity int) int
+	}
+
 	Collection struct {
 		CreatedAt   func(childComplexity int) int
 		Description func(childComplexity int) int
@@ -64,6 +78,11 @@ type ComplexityRoot struct {
 	CollectionsListResp struct {
 		Items func(childComplexity int) int
 		Meta  func(childComplexity int) int
+	}
+
+	CreateBlueprintResp struct {
+		Data    func(childComplexity int) int
+		Success func(childComplexity int) int
 	}
 
 	CreateCollectionResp struct {
@@ -83,8 +102,10 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
+		CreateBlueprint    func(childComplexity int, input model.BlueprintInput) int
 		CreateMyCollection func(childComplexity int, input model.CollectionInput) int
 		DeleteMyCollection func(childComplexity int, collectionID ksuid.KSUID) int
+		UpdateBlueprint    func(childComplexity int, input model.UpdateBlueprintInput) int
 		UpdateMyCollection func(childComplexity int, input model.UpdateCollectionInput) int
 	}
 
@@ -94,9 +115,15 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		BlueprintsList     func(childComplexity int, input model.BlueprintsListInput) int
 		CollectionsList    func(childComplexity int, input model.CollectionsListInput) int
 		MyCollectionDetail func(childComplexity int, collectionID ksuid.KSUID) int
 		MyCollectionsList  func(childComplexity int, input model.CollectionsListInput) int
+	}
+
+	UpdateBlueprintResp struct {
+		Data    func(childComplexity int) int
+		Success func(childComplexity int) int
 	}
 
 	UpdateCollectionResp struct {
@@ -112,11 +139,14 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
+	CreateBlueprint(ctx context.Context, input model.BlueprintInput) (*model.CreateBlueprintResp, error)
+	UpdateBlueprint(ctx context.Context, input model.UpdateBlueprintInput) (*model.UpdateBlueprintResp, error)
 	CreateMyCollection(ctx context.Context, input model.CollectionInput) (*model.CreateCollectionResp, error)
 	UpdateMyCollection(ctx context.Context, input model.UpdateCollectionInput) (*model.UpdateCollectionResp, error)
 	DeleteMyCollection(ctx context.Context, collectionID ksuid.KSUID) (*model.DeleteMyCollectionResp, error)
 }
 type QueryResolver interface {
+	BlueprintsList(ctx context.Context, input model.BlueprintsListInput) (*model.BlueprintsListResp, error)
 	MyCollectionsList(ctx context.Context, input model.CollectionsListInput) (*model.CollectionsListResp, error)
 	MyCollectionDetail(ctx context.Context, collectionID ksuid.KSUID) (*model.Collection, error)
 	CollectionsList(ctx context.Context, input model.CollectionsListInput) (*model.CollectionsListResp, error)
@@ -140,6 +170,62 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e, 0, 0, nil}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "Blueprint.createdAt":
+		if e.complexity.Blueprint.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Blueprint.CreatedAt(childComplexity), true
+
+	case "Blueprint.description":
+		if e.complexity.Blueprint.Description == nil {
+			break
+		}
+
+		return e.complexity.Blueprint.Description(childComplexity), true
+
+	case "Blueprint.id":
+		if e.complexity.Blueprint.ID == nil {
+			break
+		}
+
+		return e.complexity.Blueprint.ID(childComplexity), true
+
+	case "Blueprint.title":
+		if e.complexity.Blueprint.Title == nil {
+			break
+		}
+
+		return e.complexity.Blueprint.Title(childComplexity), true
+
+	case "Blueprint.updatedAt":
+		if e.complexity.Blueprint.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Blueprint.UpdatedAt(childComplexity), true
+
+	case "Blueprint.userId":
+		if e.complexity.Blueprint.UserID == nil {
+			break
+		}
+
+		return e.complexity.Blueprint.UserID(childComplexity), true
+
+	case "BlueprintsListResp.items":
+		if e.complexity.BlueprintsListResp.Items == nil {
+			break
+		}
+
+		return e.complexity.BlueprintsListResp.Items(childComplexity), true
+
+	case "BlueprintsListResp.meta":
+		if e.complexity.BlueprintsListResp.Meta == nil {
+			break
+		}
+
+		return e.complexity.BlueprintsListResp.Meta(childComplexity), true
 
 	case "Collection.createdAt":
 		if e.complexity.Collection.CreatedAt == nil {
@@ -197,6 +283,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CollectionsListResp.Meta(childComplexity), true
 
+	case "CreateBlueprintResp.data":
+		if e.complexity.CreateBlueprintResp.Data == nil {
+			break
+		}
+
+		return e.complexity.CreateBlueprintResp.Data(childComplexity), true
+
+	case "CreateBlueprintResp.success":
+		if e.complexity.CreateBlueprintResp.Success == nil {
+			break
+		}
+
+		return e.complexity.CreateBlueprintResp.Success(childComplexity), true
+
 	case "CreateCollectionResp.data":
 		if e.complexity.CreateCollectionResp.Data == nil {
 			break
@@ -246,6 +346,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Meta.Total(childComplexity), true
 
+	case "Mutation.createBlueprint":
+		if e.complexity.Mutation.CreateBlueprint == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createBlueprint_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateBlueprint(childComplexity, args["input"].(model.BlueprintInput)), true
+
 	case "Mutation.createMyCollection":
 		if e.complexity.Mutation.CreateMyCollection == nil {
 			break
@@ -269,6 +381,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeleteMyCollection(childComplexity, args["collectionId"].(ksuid.KSUID)), true
+
+	case "Mutation.updateBlueprint":
+		if e.complexity.Mutation.UpdateBlueprint == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateBlueprint_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateBlueprint(childComplexity, args["input"].(model.UpdateBlueprintInput)), true
 
 	case "Mutation.updateMyCollection":
 		if e.complexity.Mutation.UpdateMyCollection == nil {
@@ -295,6 +419,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Paging.Offset(childComplexity), true
+
+	case "Query.blueprintsList":
+		if e.complexity.Query.BlueprintsList == nil {
+			break
+		}
+
+		args, err := ec.field_Query_blueprintsList_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.BlueprintsList(childComplexity, args["input"].(model.BlueprintsListInput)), true
 
 	case "Query.collectionsList":
 		if e.complexity.Query.CollectionsList == nil {
@@ -331,6 +467,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.MyCollectionsList(childComplexity, args["input"].(model.CollectionsListInput)), true
+
+	case "UpdateBlueprintResp.data":
+		if e.complexity.UpdateBlueprintResp.Data == nil {
+			break
+		}
+
+		return e.complexity.UpdateBlueprintResp.Data(childComplexity), true
+
+	case "UpdateBlueprintResp.success":
+		if e.complexity.UpdateBlueprintResp.Success == nil {
+			break
+		}
+
+		return e.complexity.UpdateBlueprintResp.Success(childComplexity), true
 
 	case "UpdateCollectionResp.data":
 		if e.complexity.UpdateCollectionResp.Data == nil {
@@ -375,9 +525,12 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputBlueprintInput,
+		ec.unmarshalInputBlueprintsListInput,
 		ec.unmarshalInputCollectionInput,
 		ec.unmarshalInputCollectionsListInput,
 		ec.unmarshalInputPagingInput,
+		ec.unmarshalInputUpdateBlueprintInput,
 		ec.unmarshalInputUpdateCollectionInput,
 	)
 	first := true
@@ -475,7 +628,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "collections.graphqls" "schema.graphqls"
+//go:embed "blueprints.graphqls" "collections.graphqls" "schema.graphqls"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -487,6 +640,7 @@ func sourceData(filename string) string {
 }
 
 var sources = []*ast.Source{
+	{Name: "blueprints.graphqls", Input: sourceData("blueprints.graphqls"), BuiltIn: false},
 	{Name: "collections.graphqls", Input: sourceData("collections.graphqls"), BuiltIn: false},
 	{Name: "schema.graphqls", Input: sourceData("schema.graphqls"), BuiltIn: false},
 }
@@ -525,6 +679,29 @@ func (ec *executionContext) dir_hasRole_argsRole(
 	}
 
 	var zeroVal auth.Role
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createBlueprint_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_createBlueprint_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_createBlueprint_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.BlueprintInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNBlueprintInput2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐBlueprintInput(ctx, tmp)
+	}
+
+	var zeroVal model.BlueprintInput
 	return zeroVal, nil
 }
 
@@ -574,6 +751,29 @@ func (ec *executionContext) field_Mutation_deleteMyCollection_argsCollectionID(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Mutation_updateBlueprint_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_updateBlueprint_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_updateBlueprint_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.UpdateBlueprintInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateBlueprintInput2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐUpdateBlueprintInput(ctx, tmp)
+	}
+
+	var zeroVal model.UpdateBlueprintInput
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Mutation_updateMyCollection_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -617,6 +817,29 @@ func (ec *executionContext) field_Query___type_argsName(
 	}
 
 	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_blueprintsList_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Query_blueprintsList_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Query_blueprintsList_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.BlueprintsListInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNBlueprintsListInput2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐBlueprintsListInput(ctx, tmp)
+	}
+
+	var zeroVal model.BlueprintsListInput
 	return zeroVal, nil
 }
 
@@ -742,6 +965,376 @@ func (ec *executionContext) field___Type_fields_argsIncludeDeprecated(
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _Blueprint_id(ctx context.Context, field graphql.CollectedField, obj *model.Blueprint) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Blueprint_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ksuid.KSUID)
+	fc.Result = res
+	return ec.marshalNKSUID2jirkuᚗskᚋkulektorᚋksuidᚐKSUID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Blueprint_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Blueprint",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type KSUID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Blueprint_title(ctx context.Context, field graphql.CollectedField, obj *model.Blueprint) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Blueprint_title(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Blueprint_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Blueprint",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Blueprint_userId(ctx context.Context, field graphql.CollectedField, obj *model.Blueprint) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Blueprint_userId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Blueprint_userId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Blueprint",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Blueprint_description(ctx context.Context, field graphql.CollectedField, obj *model.Blueprint) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Blueprint_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Blueprint_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Blueprint",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Blueprint_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.Blueprint) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Blueprint_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNDate2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Blueprint_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Blueprint",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Date does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Blueprint_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.Blueprint) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Blueprint_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNDate2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Blueprint_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Blueprint",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Date does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BlueprintsListResp_items(ctx context.Context, field graphql.CollectedField, obj *model.BlueprintsListResp) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BlueprintsListResp_items(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Items, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]model.Blueprint)
+	fc.Result = res
+	return ec.marshalNBlueprint2ᚕjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐBlueprintᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BlueprintsListResp_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BlueprintsListResp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Blueprint_id(ctx, field)
+			case "title":
+				return ec.fieldContext_Blueprint_title(ctx, field)
+			case "userId":
+				return ec.fieldContext_Blueprint_userId(ctx, field)
+			case "description":
+				return ec.fieldContext_Blueprint_description(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Blueprint_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Blueprint_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Blueprint", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _BlueprintsListResp_meta(ctx context.Context, field graphql.CollectedField, obj *model.BlueprintsListResp) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_BlueprintsListResp_meta(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Meta, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Meta)
+	fc.Result = res
+	return ec.marshalNMeta2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐMeta(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_BlueprintsListResp_meta(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "BlueprintsListResp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total":
+				return ec.fieldContext_Meta_total(ctx, field)
+			case "prevPage":
+				return ec.fieldContext_Meta_prevPage(ctx, field)
+			case "currentPage":
+				return ec.fieldContext_Meta_currentPage(ctx, field)
+			case "nextPage":
+				return ec.fieldContext_Meta_nextPage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Meta", field.Name)
+		},
+	}
+	return fc, nil
+}
 
 func (ec *executionContext) _Collection_id(ctx context.Context, field graphql.CollectedField, obj *model.Collection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Collection_id(ctx, field)
@@ -1113,6 +1706,105 @@ func (ec *executionContext) fieldContext_CollectionsListResp_meta(_ context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _CreateBlueprintResp_success(ctx context.Context, field graphql.CollectedField, obj *model.CreateBlueprintResp) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateBlueprintResp_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreateBlueprintResp_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateBlueprintResp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CreateBlueprintResp_data(ctx context.Context, field graphql.CollectedField, obj *model.CreateBlueprintResp) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CreateBlueprintResp_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Blueprint)
+	fc.Result = res
+	return ec.marshalOBlueprint2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐBlueprint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CreateBlueprintResp_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CreateBlueprintResp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Blueprint_id(ctx, field)
+			case "title":
+				return ec.fieldContext_Blueprint_title(ctx, field)
+			case "userId":
+				return ec.fieldContext_Blueprint_userId(ctx, field)
+			case "description":
+				return ec.fieldContext_Blueprint_description(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Blueprint_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Blueprint_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Blueprint", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _CreateCollectionResp_success(ctx context.Context, field graphql.CollectedField, obj *model.CreateCollectionResp) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CreateCollectionResp_success(ctx, field)
 	if err != nil {
@@ -1444,6 +2136,182 @@ func (ec *executionContext) fieldContext_Meta_nextPage(_ context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_createBlueprint(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createBlueprint(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateBlueprint(rctx, fc.Args["input"].(model.BlueprintInput))
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2jirkuᚗskᚋkulektorᚋauthᚐRole(ctx, "EDITOR")
+			if err != nil {
+				var zeroVal *model.CreateBlueprintResp
+				return zeroVal, err
+			}
+			if ec.directives.HasRole == nil {
+				var zeroVal *model.CreateBlueprintResp
+				return zeroVal, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.CreateBlueprintResp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *jirku.sk/kulektor/graph/model.CreateBlueprintResp`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.CreateBlueprintResp)
+	fc.Result = res
+	return ec.marshalNCreateBlueprintResp2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCreateBlueprintResp(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createBlueprint(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_CreateBlueprintResp_success(ctx, field)
+			case "data":
+				return ec.fieldContext_CreateBlueprintResp_data(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CreateBlueprintResp", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createBlueprint_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateBlueprint(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateBlueprint(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateBlueprint(rctx, fc.Args["input"].(model.UpdateBlueprintInput))
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2jirkuᚗskᚋkulektorᚋauthᚐRole(ctx, "EDITOR")
+			if err != nil {
+				var zeroVal *model.UpdateBlueprintResp
+				return zeroVal, err
+			}
+			if ec.directives.HasRole == nil {
+				var zeroVal *model.UpdateBlueprintResp
+				return zeroVal, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.UpdateBlueprintResp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *jirku.sk/kulektor/graph/model.UpdateBlueprintResp`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.UpdateBlueprintResp)
+	fc.Result = res
+	return ec.marshalNUpdateBlueprintResp2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐUpdateBlueprintResp(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateBlueprint(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_UpdateBlueprintResp_success(ctx, field)
+			case "data":
+				return ec.fieldContext_UpdateBlueprintResp_data(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UpdateBlueprintResp", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateBlueprint_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createMyCollection(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createMyCollection(ctx, field)
 	if err != nil {
@@ -1730,6 +2598,94 @@ func (ec *executionContext) fieldContext_Paging_offset(_ context.Context, field 
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_blueprintsList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_blueprintsList(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().BlueprintsList(rctx, fc.Args["input"].(model.BlueprintsListInput))
+		}
+
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2jirkuᚗskᚋkulektorᚋauthᚐRole(ctx, "EDITOR")
+			if err != nil {
+				var zeroVal *model.BlueprintsListResp
+				return zeroVal, err
+			}
+			if ec.directives.HasRole == nil {
+				var zeroVal *model.BlueprintsListResp
+				return zeroVal, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.BlueprintsListResp); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *jirku.sk/kulektor/graph/model.BlueprintsListResp`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.BlueprintsListResp)
+	fc.Result = res
+	return ec.marshalNBlueprintsListResp2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐBlueprintsListResp(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_blueprintsList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "items":
+				return ec.fieldContext_BlueprintsListResp_items(ctx, field)
+			case "meta":
+				return ec.fieldContext_BlueprintsListResp_meta(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BlueprintsListResp", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_blueprintsList_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -2130,6 +3086,105 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UpdateBlueprintResp_success(ctx context.Context, field graphql.CollectedField, obj *model.UpdateBlueprintResp) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UpdateBlueprintResp_success(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Success, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UpdateBlueprintResp_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateBlueprintResp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UpdateBlueprintResp_data(ctx context.Context, field graphql.CollectedField, obj *model.UpdateBlueprintResp) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UpdateBlueprintResp_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Blueprint)
+	fc.Result = res
+	return ec.marshalOBlueprint2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐBlueprint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UpdateBlueprintResp_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UpdateBlueprintResp",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Blueprint_id(ctx, field)
+			case "title":
+				return ec.fieldContext_Blueprint_title(ctx, field)
+			case "userId":
+				return ec.fieldContext_Blueprint_userId(ctx, field)
+			case "description":
+				return ec.fieldContext_Blueprint_description(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Blueprint_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Blueprint_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Blueprint", field.Name)
 		},
 	}
 	return fc, nil
@@ -4139,6 +5194,67 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputBlueprintInput(ctx context.Context, obj interface{}) (model.BlueprintInput, error) {
+	var it model.BlueprintInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"title", "description"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "title":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Title = data
+		case "description":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Description = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputBlueprintsListInput(ctx context.Context, obj interface{}) (model.BlueprintsListInput, error) {
+	var it model.BlueprintsListInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"paging"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "paging":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("paging"))
+			data, err := ec.unmarshalNPagingInput2ᚖjirkuᚗskᚋkulektorᚋgridᚐPaging(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Paging = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCollectionInput(ctx context.Context, obj interface{}) (model.CollectionInput, error) {
 	var it model.CollectionInput
 	asMap := map[string]interface{}{}
@@ -4241,6 +5357,47 @@ func (ec *executionContext) unmarshalInputPagingInput(ctx context.Context, obj i
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUpdateBlueprintInput(ctx context.Context, obj interface{}) (model.UpdateBlueprintInput, error) {
+	var it model.UpdateBlueprintInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "blueprint", "fieldsToUpdate"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNKSUID2jirkuᚗskᚋkulektorᚋksuidᚐKSUID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "blueprint":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("blueprint"))
+			data, err := ec.unmarshalNBlueprintInput2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐBlueprintInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Blueprint = data
+		case "fieldsToUpdate":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fieldsToUpdate"))
+			data, err := ec.unmarshalNBlueprintField2ᚕjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐBlueprintFieldᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FieldsToUpdate = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateCollectionInput(ctx context.Context, obj interface{}) (model.UpdateCollectionInput, error) {
 	var it model.UpdateCollectionInput
 	asMap := map[string]interface{}{}
@@ -4289,6 +5446,108 @@ func (ec *executionContext) unmarshalInputUpdateCollectionInput(ctx context.Cont
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
+
+var blueprintImplementors = []string{"Blueprint"}
+
+func (ec *executionContext) _Blueprint(ctx context.Context, sel ast.SelectionSet, obj *model.Blueprint) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, blueprintImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Blueprint")
+		case "id":
+			out.Values[i] = ec._Blueprint_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "title":
+			out.Values[i] = ec._Blueprint_title(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userId":
+			out.Values[i] = ec._Blueprint_userId(ctx, field, obj)
+		case "description":
+			out.Values[i] = ec._Blueprint_description(ctx, field, obj)
+		case "createdAt":
+			out.Values[i] = ec._Blueprint_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updatedAt":
+			out.Values[i] = ec._Blueprint_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var blueprintsListRespImplementors = []string{"BlueprintsListResp"}
+
+func (ec *executionContext) _BlueprintsListResp(ctx context.Context, sel ast.SelectionSet, obj *model.BlueprintsListResp) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, blueprintsListRespImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("BlueprintsListResp")
+		case "items":
+			out.Values[i] = ec._BlueprintsListResp_items(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "meta":
+			out.Values[i] = ec._BlueprintsListResp_meta(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
 
 var collectionImplementors = []string{"Collection"}
 
@@ -4369,6 +5628,47 @@ func (ec *executionContext) _CollectionsListResp(ctx context.Context, sel ast.Se
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var createBlueprintRespImplementors = []string{"CreateBlueprintResp"}
+
+func (ec *executionContext) _CreateBlueprintResp(ctx context.Context, sel ast.SelectionSet, obj *model.CreateBlueprintResp) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, createBlueprintRespImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CreateBlueprintResp")
+		case "success":
+			out.Values[i] = ec._CreateBlueprintResp_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "data":
+			out.Values[i] = ec._CreateBlueprintResp_data(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4539,6 +5839,20 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
+		case "createBlueprint":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createBlueprint(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateBlueprint":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateBlueprint(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "createMyCollection":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createMyCollection(ctx, field)
@@ -4640,6 +5954,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "blueprintsList":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_blueprintsList(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "myCollectionsList":
 			field := field
 
@@ -4714,6 +6050,47 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var updateBlueprintRespImplementors = []string{"UpdateBlueprintResp"}
+
+func (ec *executionContext) _UpdateBlueprintResp(ctx context.Context, sel ast.SelectionSet, obj *model.UpdateBlueprintResp) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, updateBlueprintRespImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UpdateBlueprintResp")
+		case "success":
+			out.Values[i] = ec._UpdateBlueprintResp_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "data":
+			out.Values[i] = ec._UpdateBlueprintResp_data(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5153,6 +6530,154 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
+func (ec *executionContext) marshalNBlueprint2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐBlueprint(ctx context.Context, sel ast.SelectionSet, v model.Blueprint) graphql.Marshaler {
+	return ec._Blueprint(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNBlueprint2ᚕjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐBlueprintᚄ(ctx context.Context, sel ast.SelectionSet, v []model.Blueprint) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNBlueprint2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐBlueprint(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNBlueprintField2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐBlueprintField(ctx context.Context, v interface{}) (model.BlueprintField, error) {
+	var res model.BlueprintField
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNBlueprintField2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐBlueprintField(ctx context.Context, sel ast.SelectionSet, v model.BlueprintField) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNBlueprintField2ᚕjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐBlueprintFieldᚄ(ctx context.Context, v interface{}) ([]model.BlueprintField, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]model.BlueprintField, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNBlueprintField2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐBlueprintField(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNBlueprintField2ᚕjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐBlueprintFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []model.BlueprintField) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNBlueprintField2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐBlueprintField(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNBlueprintInput2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐBlueprintInput(ctx context.Context, v interface{}) (model.BlueprintInput, error) {
+	res, err := ec.unmarshalInputBlueprintInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNBlueprintInput2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐBlueprintInput(ctx context.Context, v interface{}) (*model.BlueprintInput, error) {
+	res, err := ec.unmarshalInputBlueprintInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNBlueprintsListInput2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐBlueprintsListInput(ctx context.Context, v interface{}) (model.BlueprintsListInput, error) {
+	res, err := ec.unmarshalInputBlueprintsListInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNBlueprintsListResp2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐBlueprintsListResp(ctx context.Context, sel ast.SelectionSet, v model.BlueprintsListResp) graphql.Marshaler {
+	return ec._BlueprintsListResp(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNBlueprintsListResp2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐBlueprintsListResp(ctx context.Context, sel ast.SelectionSet, v *model.BlueprintsListResp) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._BlueprintsListResp(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5326,6 +6851,20 @@ func (ec *executionContext) marshalNCollectionsListResp2ᚖjirkuᚗskᚋkulektor
 	return ec._CollectionsListResp(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNCreateBlueprintResp2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCreateBlueprintResp(ctx context.Context, sel ast.SelectionSet, v model.CreateBlueprintResp) graphql.Marshaler {
+	return ec._CreateBlueprintResp(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCreateBlueprintResp2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCreateBlueprintResp(ctx context.Context, sel ast.SelectionSet, v *model.CreateBlueprintResp) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CreateBlueprintResp(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNCreateCollectionResp2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐCreateCollectionResp(ctx context.Context, sel ast.SelectionSet, v model.CreateCollectionResp) graphql.Marshaler {
 	return ec._CreateCollectionResp(ctx, sel, &v)
 }
@@ -5442,6 +6981,25 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNUpdateBlueprintInput2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐUpdateBlueprintInput(ctx context.Context, v interface{}) (model.UpdateBlueprintInput, error) {
+	res, err := ec.unmarshalInputUpdateBlueprintInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpdateBlueprintResp2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐUpdateBlueprintResp(ctx context.Context, sel ast.SelectionSet, v model.UpdateBlueprintResp) graphql.Marshaler {
+	return ec._UpdateBlueprintResp(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUpdateBlueprintResp2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐUpdateBlueprintResp(ctx context.Context, sel ast.SelectionSet, v *model.UpdateBlueprintResp) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UpdateBlueprintResp(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNUpdateCollectionInput2jirkuᚗskᚋkulektorᚋgraphᚋmodelᚐUpdateCollectionInput(ctx context.Context, v interface{}) (model.UpdateCollectionInput, error) {
@@ -5714,6 +7272,13 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalOBlueprint2ᚖjirkuᚗskᚋkulektorᚋgraphᚋmodelᚐBlueprint(ctx context.Context, sel ast.SelectionSet, v *model.Blueprint) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Blueprint(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {

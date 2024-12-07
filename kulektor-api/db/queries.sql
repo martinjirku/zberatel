@@ -14,3 +14,11 @@ SELECT * FROM collections WHERE id = $1 AND user_id = $2;
 
 -- name: DeleteUserCollectionByID :exec
 DELETE FROM collections where id = $1 AND user_id = $2;
+
+-- name: CreateBlueprint :one
+INSERT INTO blueprints (id, title, description)
+VALUES ($1, $2, $3)
+RETURNING *;
+
+-- name: count :one
+SELECT count(*) as counts FROM blueprints;

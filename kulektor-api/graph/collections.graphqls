@@ -1,4 +1,4 @@
-type Query {
+extend type Query {
   myCollectionsList(input: CollectionsListInput!): CollectionsListResp!
     @hasRole(role: COLLECTOR)
   myCollectionDetail(collectionID: KSUID!): Collection!
@@ -6,7 +6,7 @@ type Query {
   collectionsList(input: CollectionsListInput!): CollectionsListResp!
     @hasRole(role: ADMIN)
 }
-type Mutation {
+extend type Mutation {
   createMyCollection(input: CollectionInput!): CreateCollectionResp!
     @hasRole(role: COLLECTOR)
   updateMyCollection(input: UpdateCollectionInput!): UpdateCollectionResp!

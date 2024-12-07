@@ -1,0 +1,55 @@
+extend type Query {
+  blueprintsList(input: BlueprintsListInput!): BlueprintsListResp!
+    @hasRole(role: EDITOR)
+}
+
+extend type Mutation {
+  createBlueprint(input: BlueprintInput!): CreateBlueprintResp!
+    @hasRole(role: EDITOR)
+  updateBlueprint(input: UpdateBlueprintInput!): UpdateBlueprintResp!
+    @hasRole(role: EDITOR)
+}
+
+# INPUTS
+input BlueprintInput {
+  title: String
+  description: String
+}
+input UpdateBlueprintInput {
+  id: KSUID!
+  blueprint: BlueprintInput!
+  fieldsToUpdate: [BlueprintField!]!
+}
+input BlueprintsListInput {
+  paging: PagingInput!
+}
+
+# UNION
+enum BlueprintField {
+  title
+  description
+}
+
+# RESPONSE
+type CreateBlueprintResp {
+  success: Boolean!
+  data: Blueprint
+}
+type UpdateBlueprintResp {
+  success: Boolean!
+  data: Blueprint
+}
+type BlueprintsListResp {
+  items: [Blueprint!]!
+  meta: Meta!
+}
+
+# Types
+type Blueprint {
+  id: KSUID!
+  title: String!
+  userId: String
+  description: String
+  createdAt: Date!
+  updatedAt: Date!
+}
