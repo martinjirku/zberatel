@@ -1,5 +1,30 @@
 import { graphql } from "./gql";
 
+export const LIST_BLUEPRINT = graphql(`
+  query BlueprintsList($input: BlueprintsListInput!) {
+    blueprintsList(input: $input) {
+      items {
+        id
+        title
+        description
+        updatedAt
+        createdAt
+      }
+      meta {
+        total
+        prevPage {
+          limit
+          offset
+        }
+        nextPage {
+          limit
+          offset
+        }
+      }
+    }
+  }
+`);
+
 export const DELETE_MY_COLLECTION = graphql(`
   mutation DeleteMyCollection($input: KSUID!) {
     deleteMyCollection(collectionId: $input) {

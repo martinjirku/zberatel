@@ -19,7 +19,7 @@ import {
   Plus,
   Trash,
 } from "iconoir-react";
-import CollectionForm from "../containers/collection-form";
+import CollectionForm from "../containers/collection.form";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/my/collections")({

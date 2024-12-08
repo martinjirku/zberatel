@@ -18,6 +18,36 @@ export type Scalars = {
   KSUID: { input: any; output: any; }
 };
 
+export type Blueprint = {
+  __typename?: 'Blueprint';
+  createdAt: Scalars['Date']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['KSUID']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['Date']['output'];
+  userId?: Maybe<Scalars['String']['output']>;
+};
+
+export enum BlueprintField {
+  Description = 'description',
+  Title = 'title'
+}
+
+export type BlueprintInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type BlueprintsListInput = {
+  paging: PagingInput;
+};
+
+export type BlueprintsListResp = {
+  __typename?: 'BlueprintsListResp';
+  items: Array<Blueprint>;
+  meta: Meta;
+};
+
 export type Collection = {
   __typename?: 'Collection';
   createdAt: Scalars['Date']['output'];
@@ -50,6 +80,12 @@ export type CollectionsListResp = {
   meta: Meta;
 };
 
+export type CreateBlueprintResp = {
+  __typename?: 'CreateBlueprintResp';
+  data?: Maybe<Blueprint>;
+  success: Scalars['Boolean']['output'];
+};
+
 export type CreateCollectionResp = {
   __typename?: 'CreateCollectionResp';
   data?: Maybe<Collection>;
@@ -71,9 +107,16 @@ export type Meta = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  createBlueprint: CreateBlueprintResp;
   createMyCollection: CreateCollectionResp;
   deleteMyCollection: DeleteMyCollectionResp;
+  updateBlueprint: UpdateBlueprintResp;
   updateMyCollection: UpdateCollectionResp;
+};
+
+
+export type MutationCreateBlueprintArgs = {
+  input: BlueprintInput;
 };
 
 
@@ -84,6 +127,11 @@ export type MutationCreateMyCollectionArgs = {
 
 export type MutationDeleteMyCollectionArgs = {
   collectionId: Scalars['KSUID']['input'];
+};
+
+
+export type MutationUpdateBlueprintArgs = {
+  input: UpdateBlueprintInput;
 };
 
 
@@ -104,9 +152,15 @@ export type PagingInput = {
 
 export type Query = {
   __typename?: 'Query';
+  blueprintsList: BlueprintsListResp;
   collectionsList: CollectionsListResp;
   myCollectionDetail: Collection;
   myCollectionsList: CollectionsListResp;
+};
+
+
+export type QueryBlueprintsListArgs = {
+  input: BlueprintsListInput;
 };
 
 
@@ -131,6 +185,18 @@ export enum Role {
   Public = 'PUBLIC'
 }
 
+export type UpdateBlueprintInput = {
+  blueprint: BlueprintInput;
+  fieldsToUpdate: Array<BlueprintField>;
+  id: Scalars['KSUID']['input'];
+};
+
+export type UpdateBlueprintResp = {
+  __typename?: 'UpdateBlueprintResp';
+  data?: Maybe<Blueprint>;
+  success: Scalars['Boolean']['output'];
+};
+
 export type UpdateCollectionInput = {
   collection: CollectionInput;
   fieldsToUpdate: Array<CollectionField>;
@@ -149,6 +215,13 @@ export type User = {
   role: Role;
   uid: Scalars['String']['output'];
 };
+
+export type BlueprintsListQueryVariables = Exact<{
+  input: BlueprintsListInput;
+}>;
+
+
+export type BlueprintsListQuery = { __typename?: 'Query', blueprintsList: { __typename?: 'BlueprintsListResp', items: Array<{ __typename?: 'Blueprint', id: any, title: string, description?: string | null, updatedAt: any, createdAt: any }>, meta: { __typename?: 'Meta', total: number, prevPage?: { __typename?: 'Paging', limit?: number | null, offset?: number | null } | null, nextPage?: { __typename?: 'Paging', limit?: number | null, offset?: number | null } | null } } };
 
 export type DeleteMyCollectionMutationVariables = Exact<{
   input: Scalars['KSUID']['input'];
@@ -186,6 +259,7 @@ export type MyCollectionsQueryVariables = Exact<{
 export type MyCollectionsQuery = { __typename?: 'Query', myCollectionsList: { __typename?: 'CollectionsListResp', items: Array<{ __typename?: 'Collection', id: any, title: string, description?: string | null }>, meta: { __typename?: 'Meta', total: number, nextPage?: { __typename?: 'Paging', limit?: number | null, offset?: number | null } | null, prevPage?: { __typename?: 'Paging', limit?: number | null, offset?: number | null } | null } } };
 
 
+export const BlueprintsListDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"BlueprintsList"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"BlueprintsListInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"blueprintsList"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"meta"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"prevPage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"limit"}},{"kind":"Field","name":{"kind":"Name","value":"offset"}}]}},{"kind":"Field","name":{"kind":"Name","value":"nextPage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"limit"}},{"kind":"Field","name":{"kind":"Name","value":"offset"}}]}}]}}]}}]}}]} as unknown as DocumentNode<BlueprintsListQuery, BlueprintsListQueryVariables>;
 export const DeleteMyCollectionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteMyCollection"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"KSUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteMyCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"collectionId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}}]}}]}}]} as unknown as DocumentNode<DeleteMyCollectionMutation, DeleteMyCollectionMutationVariables>;
 export const CreateMyCollectionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateMyCollection"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CollectionInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createMyCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]}}]} as unknown as DocumentNode<CreateMyCollectionMutation, CreateMyCollectionMutationVariables>;
 export const UpdateMyCollectionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateMyCollection"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateCollectionInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateMyCollection"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateMyCollectionMutation, UpdateMyCollectionMutationVariables>;
